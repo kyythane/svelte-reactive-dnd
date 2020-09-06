@@ -1,0 +1,34 @@
+{
+  "name": "svelte-reactive-dnd",
+  "version": "1.0.0",
+  "description": "A drag and drop library for Svelte",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kyythane/svelte-reactive-dnd.git"
+  },
+  "keywords": [
+    "svelte",
+    "drag",
+    "drop",
+    "drag-and-drop",
+    "dnd",
+    "sortable",
+    "draggable",
+    "responsive",
+    "resizable"
+  ],
+  "author": "Lillian Primorose",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/kyythane/svelte-reactive-dnd/issues"
+  },
+  "homepage": "https://github.com/kyythane/svelte-reactive-dnd#readme",
+  "devDependencies": {
+    "@tsconfig/svelte": "^1.0.10",
+    "svelte": "^3.24.1"
+  }
+}
