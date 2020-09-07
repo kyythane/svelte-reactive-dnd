@@ -11,6 +11,6 @@ node_modules/
 *.tgz
 /src/helpers/**/*.js
 /src/components/**/*.js
-/src/helpers/*.d.ts
+/src/**/*.d.ts
 **/*.map
 /lib/
