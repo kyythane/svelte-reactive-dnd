@@ -303,7 +303,7 @@
         if (!!draggableDragStart && $dragging === 'none') {
             let dx = draggableDragStart.x - event.clientX;
             let dy = draggableDragStart.y - event.clientY;
-            if (dx * dx + dy * dy > $dragDropSettings.dragThresholdPixels) {
+            if (dx * dx + dy * dy > $dragDropSettings.globals.dragThresholdPixels) {
                 $dragging = 'picking-up';
                 const containingElement =
                     wrappingElements[
@@ -327,14 +327,14 @@
                 dragTween = tweened(
                     { x: 0, y: 0 },
                     {
-                        duration: $dragDropSettings.animationMs,
+                        duration: $dragDropSettings.globals.animationMs,
                         easing: cubicOut,
                     }
                 );
                 sourceElementTween = tweened(
                     $dragTarget.sourceRect[$cache.dimensionKey],
                     {
-                        duration: $dragDropSettings.animationMs,
+                        duration: $dragDropSettings.globals.animationMs,
                         easing: cubicOut,
                     }
                 );
@@ -446,7 +446,7 @@
                 (_, index) => index !== draggedOffIndex
             );
             hoverLeaveElementTweens = tweened(filteredSizes, {
-                duration: $dragDropSettings.animationMs,
+                duration: $dragDropSettings.globals.animationMs,
                 easing: cubicOut,
             });
             hoverLeaveElementTweens.set(
@@ -456,7 +456,7 @@
 
         currentlyDraggingOver = hoverResult;
         hoverEnterElementTween = tweened(startingSize, {
-            duration: $dragDropSettings.animationMs,
+            duration: $dragDropSettings.globals.animationMs,
             easing: cubicOut,
         });
         hoverEnterElementTween.set($dragTarget.cachedRect[$cache.dimensionKey]);
@@ -495,7 +495,7 @@
                 ),
             ],
             {
-                duration: $dragDropSettings.animationMs,
+                duration: $dragDropSettings.globals.animationMs,
                 easing: cubicOut,
             }
         );
@@ -522,17 +522,17 @@
                 : cachedDropZoneRect.y;
         let threshold = Math.min(
             Math.max(
-                $dragDropSettings.scrollOnDragThresholdPercent *
+                $dragDropSettings.globals.scrollOnDragThresholdPercent *
                     cachedDropZoneRect[$cache.dimensionKey],
-                $dragDropSettings.scrollOnDragMinPixels
+                $dragDropSettings.globals.scrollOnDragMinPixels
             ),
-            $dragDropSettings.scrollOnDragMaxPixels
+            $dragDropSettings.globals.scrollOnDragMaxPixels
         );
         if (midpoint <= threshold + compOffset) {
             const ratio = 1 - (midpoint - compOffset) / threshold;
             if (dragScrollTarget >= dragScrollCurrent) {
                 dragScrollTween = tweened(dragScrollCurrent, {
-                    duration: $dragDropSettings.animationMs,
+                    duration: $dragDropSettings.globals.animationMs,
                 });
                 /* Use truncation rather than floor because it is more consistent 
                Math.trunc(1.1) === 1, Math.trunc(-1.1) === -1 */
@@ -540,8 +540,8 @@
                     dragScrollCurrent -
                         lerp(
                             ratio,
-                            $dragDropSettings.minDragScrollSpeed,
-                            $dragDropSettings.maxDragScrollSpeed
+                            $dragDropSettings.globals.minDragScrollSpeed,
+                            $dragDropSettings.globals.maxDragScrollSpeed
                         )
                 );
                 dragScrollTween.set(dragScrollTarget);
@@ -558,14 +558,14 @@
                 threshold;
             if (dragScrollTarget <= dragScrollCurrent) {
                 dragScrollTween = tweened(dragScrollCurrent, {
-                    duration: $dragDropSettings.animationMs,
+                    duration: $dragDropSettings.globals.animationMs,
                 });
                 dragScrollTarget = Math.trunc(
                     dragScrollCurrent +
                         lerp(
                             ratio,
-                            $dragDropSettings.minDragScrollSpeed,
-                            $dragDropSettings.maxDragScrollSpeed
+                            $dragDropSettings.globals.minDragScrollSpeed,
+                            $dragDropSettings.globals.maxDragScrollSpeed
                         )
                 );
                 dragScrollTween.set(dragScrollTarget);
@@ -795,7 +795,7 @@
             if (zeros > 0) {
                 previouslyDraggedOver = previouslyDraggedOver.slice(zeros);
                 hoverLeaveElementTweens = tweened(sizes.slice(zeros), {
-                    duration: $dragDropSettings.animationMs,
+                    duration: $dragDropSettings.globals.animationMs,
                     easing: cubicOut,
                 });
                 hoverLeaveElementTweens.set(

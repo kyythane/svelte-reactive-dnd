@@ -38,8 +38,8 @@ export type DropTargetCache = {
     scrollKey: 'scrollTop' | 'scrollLeft';
     dimensionKey: 'height' | 'width';
     paddingKeys:
-        | { before: 'paddingTop'; after: 'paddingBottom' }
-        | { before: 'paddingLeft'; after: 'paddingRight' };
+    | { before: 'paddingTop'; after: 'paddingBottom' }
+    | { before: 'paddingLeft'; after: 'paddingRight' };
 };
 export type DragTarget = {
     key?: string;
@@ -56,13 +56,15 @@ export type DragDropSettings = {
         enableResizeListeners: boolean;
         direction: 'horizontal' | 'vertical';
     };
-    dragThresholdPixels: number;
-    animationMs: number;
-    scrollOnDragThresholdPercent: number;
-    scrollOnDragMinPixels: number;
-    scrollOnDragMaxPixels: number;
-    minDragScrollSpeed: number;
-    maxDragScrollSpeed: number;
+    globals: {
+        dragThresholdPixels: number;
+        animationMs: number;
+        scrollOnDragThresholdPercent: number;
+        scrollOnDragMinPixels: number;
+        scrollOnDragMaxPixels: number;
+        minDragScrollSpeed: number;
+        maxDragScrollSpeed: number;
+    };
 };
 export type DropGroup = {
     key: string;

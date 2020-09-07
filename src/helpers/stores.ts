@@ -14,13 +14,15 @@ export const dragDropSettings: Writable<DragDropSettings> = writable({
         enableResizeListeners: false,
         direction: 'vertical',
     },
-    dragThresholdPixels: 25,
-    animationMs: 200,
-    scrollOnDragThresholdPercent: 0.1,
-    scrollOnDragMinPixels: 50,
-    scrollOnDragMaxPixels: 150,
-    minDragScrollSpeed: 75,
-    maxDragScrollSpeed: 175,
+    globals: {
+        dragThresholdPixels: 25,
+        animationMs: 200,
+        scrollOnDragThresholdPercent: 0.1,
+        scrollOnDragMinPixels: 50,
+        scrollOnDragMaxPixels: 150,
+        minDragScrollSpeed: 75,
+        maxDragScrollSpeed: 175,
+    },
 });
 export const dropTargets: Writable<Array<DropTarget>> = writable([]);
 export const dragging: Writable<
