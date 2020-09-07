@@ -93,5 +93,3 @@ async function build() {
 }
 
 build();
-
-//find ./src -print | grep -E 'tsx|jsx|js|map' | xargs rm -f
