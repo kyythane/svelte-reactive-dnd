@@ -15,16 +15,19 @@
     "build": "npm run build:dist && npm run build:lib",
     "build:dist": "rollup -c",
     "build:lib": "node -r esm ./buildlib.js -- --quiet",
-    "check": "npm run check:svelte && npm run check:type && npm run check:lint",
+    "check": "npm run check:svelte && npm run check:type && npm run check:lint && check:markdown",
     "check:svelte": "svelte-check --ignore g'dist,lib'",
     "check:type": "tsc --noEmit -p ./tsconfig.json",
     "check:lint": "eslint . && prettier --check ./src/**/*.svelte",
+    "check:markdown": "markdownlint '**/*.md' --ignore node_modules",
+    "fix": "npm run fix:lint && npm run fix:markdown",
     "fix:lint": "eslint . --fix && prettier --write ./src/**/*.svelte",
+    "fix:markdown": "markdownlint '**/*.md' --fix --ignore node_modules",
     "prepublishOnly": "npm run check && npm run build"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run fix:lint",
+      "pre-commit": "npm run fix",
       "pre-push": "npm run check"
     }
   },
@@ -60,6 +63,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "esm": "^3.2.25",
     "husky": "^4.2.5",
+    "markdownlint-cli": "^0.23.2",
     "prettier": "^2.0.5",
     "prettier-plugin-svelte": "^1.1.0",
     "rollup": "^2.26.10",

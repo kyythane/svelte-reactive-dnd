@@ -1,6 +1,6 @@
 # svelte-reactive-dnd
 
-A drag and drop library for Svelte 
+A drag and drop library for Svelte
 
 Includes support for:
 
@@ -29,8 +29,8 @@ Start using the parts!
         { id: 2, title: 'Banana' },
         { id: 3, title: 'Cherry' },
     ];
-</script> 
- 
+</script>
+
 <div class="list">
     <DropList
         {items}
@@ -45,7 +45,7 @@ Start using the parts!
         </div>
     </DropList>
 </div>
- 
+
 <style>
     .list {
         height: 200px;
@@ -67,17 +67,21 @@ Start using the parts!
 
 ## Design
 
-`svelte-reactive-dnd` manages your lists internally, creating a few internal divs to handle measurements and events. It uses `padding` to manipulate the position of items in the list, relying on the browser's layout engine to animate things properly. In my tests in Chrome, this was fairly performant with lists of up to 500 items, but please file [an issue](https://github.com/kyythane/svelte-reactive-dnd/issues) if you se otherwise!
+`svelte-reactive-dnd` manages your lists internally, creating a few internal divs to handle measurements and events.
+It uses `padding` to manipulate the position of items in the list, relying on the browser's layout engine to animate things properly.
+In my tests in Chrome, this was fairly performant with lists of up to 500 items, but please file [an issue](https://github.com/kyythane/svelte-reactive-dnd/issues) if you se otherwise!  
 
-`DropList` maintains a cached copy of the `items` it was provided. This cache is not updated during dragging to simplify list management and provide better UX. The `itemdroppedin` event provides multiple views of how the list was manipulated that may be useful in reconciling any changes. But in the simple case, `listSnapshot` should work great.
+`DropList` maintains a cached copy of the `items` it was provided. This cache is not updated during dragging to simplify list management and provide better UX. The `itemdroppedin` event provides multiple views of how the list was manipulated that may be useful in reconciling any changes.
+But in the simple case, `listSnapshot` should work great.  
 
-`DragHandle` and `DropGroup` are provided to simplify common tasks, and to reduce the amount of wiring one has to do when building more complex drag and drop experiences, hopefully simplifying common use cases. They are not required. With a little bit of wiring, anything they add can be done manually. To that end, they are very simple, and provide little configuration.
+`DragHandle` and `DropGroup` are provided to simplify common tasks, and to reduce the amount of wiring one has to do when building more complex drag and drop experiences, hopefully simplifying common use cases.
+They are not required. With a little bit of wiring, anything they add can be done manually. To that end, they are very simple, and provide little configuration.  
 
 ## API
 
 There are 4 exports from this library:
 
-- [DropList](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropList.md) 
-- [DragHandle](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DragHandle.md) 
-- [DropGroup](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropGroup.md) 
-- [dragDropSettings](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/dragDropSettings.md) 
+- [DropList](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropList.md)
+- [DragHandle](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DragHandle.md)
+- [DropGroup](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropGroup.md)
+- [dragDropSettings](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/dragDropSettings.md)
