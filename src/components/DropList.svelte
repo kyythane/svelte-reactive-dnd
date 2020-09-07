@@ -239,7 +239,7 @@
                         dropGroup.onDragOut(
                             dragOutResult.item,
                             dragOutResult.listSnapshot,
-                            identifier ?? id,
+                            identifier ?? id
                         );
                     }
                     dispatch('itemdraggedout', dragOutResult);
@@ -354,7 +354,7 @@
                     .filter((target) => target.key === hierarchyKey)
                     .forEach((target) => target.prepareDropZone());
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragStart(item, identifier ?? id);
+                    dropGroup.onDragStart($dragTarget.item, identifier ?? id);
                 }
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await sourceElementTween.set(0);
