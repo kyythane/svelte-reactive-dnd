@@ -14,7 +14,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "npm run fix:lint",
-      "pre-push": "npm run heck"
+      "pre-push": "npm run check"
     }
   },
   "repository": {
