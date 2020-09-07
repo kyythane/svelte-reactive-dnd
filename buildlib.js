@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import svelte2tsx from 'svelte2tsx';
 import sveltePreprocess from 'svelte-preprocess';
-import { compile as svelteCompile, preprocess } from 'svelte/compiler';
+import { preprocess } from 'svelte/compiler';
 
 const quiet =
     process.argv.findIndex((arg) => arg === '--quiet' || arg === '-q') >= 0;
