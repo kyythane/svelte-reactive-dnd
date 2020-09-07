@@ -8,8 +8,14 @@
     "check": "npm run check:svelte && npm run check:type && npm run check:lint",
     "check:svelte": "svelte-check",
     "check:type": "tsc -p ./tsconfig.json",
-    "check:lint": "eslint '**/*.{ts, svelte}'",
-    "fix:lint": "eslint '**/*.{ts, svelte}' --fix"
+    "check:lint": "eslint . && prettier --check ./**/*.svelte",
+    "fix:lint": "eslint . --fix && prettier --write ./**/*.svelte"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm fix:lint",
+      "pre-push": "npm check"
+    }
   },
   "repository": {
     "type": "git",
@@ -41,7 +47,7 @@
     "eslint": "^7.8.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-svelte3": "^2.7.3",
+    "husky": "^4.2.5",
     "prettier": "^2.0.5",
     "prettier-plugin-svelte": "^1.1.0",
     "rollup": "^2.26.10",

@@ -1,2 +1,5 @@
 node_modules
+**/*.svelte
 **/*.d.ts
+**/src/helpers/*.js
+**/*.js.map
