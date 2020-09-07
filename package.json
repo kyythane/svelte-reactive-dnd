@@ -15,7 +15,7 @@
     "build": "npm run build:dist && npm run build:lib",
     "build:dist": "rollup -c",
     "build:lib": "node -r esm ./buildlib.js -- --quiet",
-    "check": "npm run check:svelte && npm run check:type && npm run check:lint && check:markdown",
+    "check": "npm run check:svelte && npm run check:type && npm run check:lint && npm run check:markdown",
     "check:svelte": "svelte-check --ignore g'dist,lib'",
     "check:type": "tsc --noEmit -p ./tsconfig.json",
     "check:lint": "eslint . && prettier --check ./src/**/*.svelte",
