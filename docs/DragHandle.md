@@ -5,4 +5,4 @@
 ### - itemId
 Required. The `id` of the the item that this `DragHandle` controlls. If this `id` is on an item in a `DropList` events will get hooked up automatically.
 ### - disabled
-Optional. Disables the `DragHandle` (will display a `not-allowed` cursor).
+Optional. Disables the `DragHandle` (will display a `not-allowed` cursor). [See example](https://svelte.dev/repl/4b48f17273ee4758a2c2c6ce440f6186?version=3.24.1)
