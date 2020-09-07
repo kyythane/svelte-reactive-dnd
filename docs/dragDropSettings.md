@@ -22,13 +22,13 @@ Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`. Defaults to
 How many pixels a the mouse has to move before a drag is detected. Defaults to 25.  
 **- animationMs**  
 Duration of all animations used in `DropList`. Defaults to 200.  
-**- scrollOnDragThresholdPercent: 0.1**  
+**- scrollOnDragThresholdPercent**  
 What percent of the start and end of the `DropList` should be a scroll sensor. Defaults to 0.1 (10%).  
-**- scrollOnDragMinPixels: 50**  
+**- scrollOnDragMinPixels**  
 The minimum size of a scroll sensor. Defaults to 50.  
-**- scrollOnDragMaxPixels: 150**  
+**- scrollOnDragMaxPixels**  
 The maximum size of a scroll sensor. Defaults to 150.  
-**- minDragScrollSpeed: 75**  
+**- minDragScrollSpeed**  
 The minimum speed the list will scroll in pixels per second. Defaults to 375.  
-**- maxDragScrollSpeed: 175**  
+**- maxDragScrollSpeed**  
 The maximum speed the list will scroll in pixels per second. Defaults to 875.  

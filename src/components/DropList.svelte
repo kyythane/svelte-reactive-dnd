@@ -86,10 +86,10 @@
         item: Item,
         sourceDropZone: number
     ) => boolean = () => true;
-    export const id = dropTargetId.next();
+    export let identifier: Id | undefined;
 
+    const id = dropTargetId.next();
     const dropGroup: DropGroup | undefined = getContext('reactive-drop-group');
-
     const cache = createDropTargetCache({
         items: [],
         direction,
@@ -239,7 +239,7 @@
                         dropGroup.onDragOut(
                             dragOutResult.item,
                             dragOutResult.listSnapshot,
-                            id
+                            identifier ?? id,
                         );
                     }
                     dispatch('itemdraggedout', dragOutResult);
@@ -256,7 +256,7 @@
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await dragTween.set({ x: 0, y: 0 });
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragCancel($dragTarget.item);
+                    dropGroup.onDragCancel($dragTarget.item, identifier ?? id);
                 }
                 dispatch('dragcancelled', {
                     item: $dragTarget.item,
@@ -354,7 +354,7 @@
                     .filter((target) => target.key === hierarchyKey)
                     .forEach((target) => target.prepareDropZone());
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragStart();
+                    dropGroup.onDragStart(item, identifier ?? id);
                 }
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await sourceElementTween.set(0);
@@ -420,7 +420,7 @@
                 dropInResult.insertedAfter,
                 dropInResult.listSnapshot,
                 dropInResult.sourceDropZone,
-                id
+                identifier ?? id
             );
         }
         dispatch('itemdroppedin', dropInResult);

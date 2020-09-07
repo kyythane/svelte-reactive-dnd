@@ -1,13 +1,13 @@
 <script lang="ts">
     import { setContext, createEventDispatcher } from 'svelte';
-    import type { DropGroup, Item } from '../helpers/types';
+    import type { Id, DropGroup, Item } from '../helpers/types';
     import { dropGroupId } from '../helpers/stores';
     const key: string = `drop-group-${dropGroupId.next()}`;
     let sourceResult:
         | {
               item: Item;
               listSnapshot: Item[];
-              dropZoneId: number;
+              listIdentifier: Id;
           }
         | undefined = undefined;
     let destinationResult:
@@ -16,13 +16,17 @@
               index: number;
               insertedAfter: Item | undefined;
               listSnapshot: Item[];
-              dropZoneId: number;
+              listIdentifier: Id;
           }
         | undefined = undefined;
     const dispatch = createEventDispatcher();
-    const onDragStart = () => {
+    const onDragStart = (item: Item, sourceIdentifer: Id) => {
         sourceResult = undefined;
         destinationResult = undefined;
+        dispatch('dragstart', {
+            item,
+            listIdentifier: sourceIdentifer,
+        });
     };
     const onDragComplete = () => {
         dispatch('dragcomplete', {
@@ -37,33 +41,34 @@
         index: number,
         insertedAfter: Item | undefined,
         listSnapshot: Item[],
-        sourceDropZoneId: number,
-        destinationDropZoneId: number
+        sourceIdentifier: Id,
+        destinationIdentifier: Id
     ) => {
         destinationResult = {
             item,
             index,
             insertedAfter,
             listSnapshot,
-            dropZoneId: destinationDropZoneId,
+            listIdentifier: destinationIdentifier,
         };
-        if (!!sourceResult || sourceDropZoneId === destinationDropZoneId) {
+        if (!!sourceResult || sourceIdentifier === destinationIdentifier) {
             onDragComplete();
         }
     };
     const onDragOut = (
         item: Item,
         listSnapshot: Item[],
-        sourceDropZoneId: number
+        sourceIdentifier: Id
     ) => {
-        sourceResult = { item, listSnapshot, dropZoneId: sourceDropZoneId };
+        sourceResult = { item, listSnapshot, listIdentifier: sourceIdentifier };
         if (!!destinationResult) {
             onDragComplete();
         }
     };
-    const onDragCancel = (item: Item) => {
+    const onDragCancel = (item: Item, sourceIdentifer: Id) => {
         dispatch('dragcancelled', {
             item,
+            listIdentifier: sourceIdentifer,
         });
         sourceResult = undefined;
         destinationResult = undefined;

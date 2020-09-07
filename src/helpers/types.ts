@@ -1,4 +1,4 @@
-export type Id = number | string;
+export type Id = string | number;
 export type Placement = 'before' | 'after';
 export type Direction = 'horizontal' | 'vertical';
 export type Item = { id: Id };
@@ -38,8 +38,8 @@ export type DropTargetCache = {
     scrollKey: 'scrollTop' | 'scrollLeft';
     dimensionKey: 'height' | 'width';
     paddingKeys:
-        | { before: 'paddingTop'; after: 'paddingBottom' }
-        | { before: 'paddingLeft'; after: 'paddingRight' };
+    | { before: 'paddingTop'; after: 'paddingBottom' }
+    | { before: 'paddingLeft'; after: 'paddingRight' };
 };
 export type DragTarget = {
     key?: string;
@@ -68,19 +68,15 @@ export type DragDropSettings = {
 };
 export type DropGroup = {
     key: string;
-    onDragStart: () => void;
+    onDragStart: (item: Item, dropZone: Id) => void;
     onDropIn: (
         item: Item,
         index: number,
         insertedAfter: Item | undefined,
         listSnapshot: Item[],
-        sourceDropZoneId: number,
-        destinationDropZoneId: number
+        sourceDropZone: Id,
+        destinationDropZone: Id
     ) => void;
-    onDragOut: (
-        item: Item,
-        listSnapshot: Item[],
-        sourceDropZoneId: number
-    ) => void;
-    onDragCancel: (item: Item) => void;
+    onDragOut: (item: Item, listSnapshot: Item[], sourceDropZone: Id) => void;
+    onDragCancel: (item: Item, dropZone: Id) => void;
 };
