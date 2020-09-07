@@ -2,17 +2,16 @@
   "name": "svelte-reactive-dnd",
   "version": "1.0.0",
   "description": "A drag and drop library for Svelte",
-  "svelte": "src/svelte-reactive-dnd.js",
+  "svelte": "src/index.js",
   "module": "dist/svelte-reactive-dnd.mjs",
   "main": "dist/svelte-reactive-dnd.js",
-  "types": "dist/svelte-reactive-dnd.d.ts",
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c",
+    "build": "tsc -d -p ./tsconfig.json && rollup -c",
     "check": "npm run check:svelte && npm run check:type && npm run check:lint",
     "check:svelte": "svelte-check",
     "check:type": "tsc --noEmit -p ./tsconfig.json",
@@ -59,14 +58,14 @@
     "prettier": "^2.0.5",
     "prettier-plugin-svelte": "^1.1.0",
     "rollup": "^2.26.10",
+    "rollup-plugin-dts": "^1.4.13",
     "rollup-plugin-svelte": "^6.0.0",
+    "rollup-plugin-terser": "^7.0.2",
     "svelte": "^3.24.1",
     "svelte-check": "^1.0.36",
     "svelte-preprocess": "^4.2.1",
     "tslib": "^2.0.1",
     "typescript": "^4.0.2"
   },
-  "dependencies": {
-    "rollup-plugin-terser": "^7.0.2"
-  }
+  "dependencies": {}
 }

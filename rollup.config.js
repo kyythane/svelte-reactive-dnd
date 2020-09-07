@@ -3,7 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import sveltePreprocess from 'svelte-preprocess';
-import dts from 'rollup-plugin-dts';
+// import dts from 'rollup-plugin-dts';
 import pkg from './package.json';
 
 const name = pkg.name
@@ -32,8 +32,15 @@ export default [
             typescript(),
         ],
     },
-    {
-        input: 'src/index.js',
+    /*{
+        input: 'src/type_exports.d.ts',
+        external: [
+            'svelte',
+            'svelte/internal',
+            'svelte/store',
+            'svelte/motion',
+            'svelte/easing',
+        ],
         output: {
             file: pkg.main.replace('.js', '.d.ts'),
             format: 'es',
@@ -42,9 +49,7 @@ export default [
             svelte({
                 preprocess: sveltePreprocess(),
             }),
-            resolve(),
-            typescript(),
             dts(),
         ],
-    },
+    },*/
 ];
