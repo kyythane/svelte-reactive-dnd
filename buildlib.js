@@ -79,7 +79,7 @@ function copySvelteFiles() {
 
 function cleanUpLib() {
     console.log('remove jsx files');
-    return execPromise("find ./src -print | grep -E 'jsx' | xargs rm -f");
+    return execPromise("find ./lib -print | grep -E 'jsx' | xargs rm -f");
 }
 
 async function build() {
@@ -93,6 +93,5 @@ async function build() {
 }
 
 build();
-
 
 //find ./src -print | grep -E 'tsx|jsx|js|map' | xargs rm -f
