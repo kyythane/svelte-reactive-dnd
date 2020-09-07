@@ -28,16 +28,6 @@ export default [
                 preprocess: sveltePreprocess(),
             }),
             resolve(),
-        ],
-    },
-    {
-        input: 'src/index.js',
-        output: { dir: 'dist' },
-        plugins: [
-            svelte({
-                preprocess: sveltePreprocess(),
-            }),
-            resolve(),
             typescript(),
         ],
     },
