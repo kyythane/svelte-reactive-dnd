@@ -71,4 +71,4 @@ There are 4 exports from this library:
 - [DropList](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropList.md) 
 - [DragHandle](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DragHandle.md) 
 - [DropGroup](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropGroup.md) 
-- [dragDropSetting](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/dragDropSetting.md) 
+- [dragDropSettings](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/dragDropSettings.md) 

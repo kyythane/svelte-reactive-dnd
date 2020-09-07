@@ -20,8 +20,8 @@ export const dragDropSettings: Writable<DragDropSettings> = writable({
         scrollOnDragThresholdPercent: 0.1,
         scrollOnDragMinPixels: 50,
         scrollOnDragMaxPixels: 150,
-        minDragScrollSpeed: 75,
-        maxDragScrollSpeed: 175,
+        minDragScrollSpeed: 375,
+        maxDragScrollSpeed: 875,
     },
 });
 export const dropTargets: Writable<Array<DropTarget>> = writable([]);

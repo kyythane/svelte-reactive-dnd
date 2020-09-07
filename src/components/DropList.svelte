@@ -535,7 +535,7 @@
             const ratio = 1 - (midpoint - compOffset) / threshold;
             if (dragScrollTarget >= dragScrollCurrent) {
                 dragScrollTween = tweened(dragScrollCurrent, {
-                    duration: $dragDropSettings.globals.animationMs,
+                    duration: 1000,
                 });
                 /* Use truncation rather than floor because it is more consistent 
                Math.trunc(1.1) === 1, Math.trunc(-1.1) === -1 */
