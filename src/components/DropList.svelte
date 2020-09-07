@@ -680,9 +680,6 @@
     // Update the dropTarget for this dropZone
     $: {
         if (mounted) {
-            let updatedRect = false;
-            let updatedCapacity = false;
-            let updatedDisabled = false;
             if (
                 enableResizeListeners &&
                 (cachedDropZoneRect?.width !== currentWidth ||
@@ -695,10 +692,6 @@
                     width: currentWidth,
                     height: currentHeight,
                 };
-                updatedRect = true;
-            }
-
-            if (updatedRect || updatedCapacity || updatedDisabled) {
                 $dropTargets = [
                     ...$dropTargets.filter((dt) => dt.id !== id),
                     {
@@ -942,6 +935,31 @@
     }
 
     onMount(() => {
+        let bounding = dropZone.getBoundingClientRect();
+        cachedDropZoneRect = {
+            x: bounding.left,
+            y: bounding.top,
+            width: currentWidth,
+            height: currentHeight,
+        };
+        $dropTargets = [
+            ...$dropTargets,
+            {
+                id,
+                key: hierarchyKey,
+                rect: cachedDropZoneRect,
+                dropElement: dropZone,
+                dropCallback,
+                hoverCallback,
+                prepareDropZone,
+                enterDropZone,
+                leaveDropZone,
+                hasItem,
+                getEventHandlers,
+                cleanupDropZone,
+                canDrop,
+            },
+        ];
         mounted = true;
     });
 
