@@ -2,7 +2,7 @@
   "name": "svelte-reactive-dnd",
   "version": "1.0.0",
   "description": "A drag and drop library for Svelte",
-  "svelte": "src/components.js",
+  "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
