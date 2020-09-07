@@ -1,25 +1,25 @@
 <style>
-  .dropContainer {
-      height: 100%;
-      width: 100%;
-      overscroll-behavior: contain;
-  }
+    .dropContainer {
+        height: 100%;
+        width: 100%;
+        overscroll-behavior: contain;
+    }
 
-  .dragContainer {
-      width: fit-content;
-      height: fit-content;
-      flex-shrink: 0;
-      flex-grow: 0;
-  }
+    .dragContainer {
+        width: fit-content;
+        height: fit-content;
+        flex-shrink: 0;
+        flex-grow: 0;
+    }
 
-  .horizontal {
-      display: flex;
-      overflow-x: scroll;
-  }
+    .horizontal {
+        display: flex;
+        overflow-x: scroll;
+    }
 
-  .vertical {
-      overflow-y: scroll;
-  }
+    .vertical {
+        overflow-y: scroll;
+    }
 </style>
 
 <script lang="ts">

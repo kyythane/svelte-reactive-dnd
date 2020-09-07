@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "A drag and drop library for Svelte",
   "svelte": "lib/index.js",
-  "module": "dist/svelte-reactive-dnd.mjs",
-  "main": "dist/svelte-reactive-dnd.js",
-  "types": "dist/svelte-reactive-dnd.d.ts",
+  "module": "dist/index.mjs",
+  "main": "dist/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "dist",
     "lib"
@@ -14,7 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:dist && npm run build:lib",
     "build:dist": "rollup -c",
-    "build:lib": "node -r esm ./buildlib.js",
+    "build:lib": "node -r esm ./buildlib.js -- --quiet",
     "check": "npm run check:svelte && npm run check:type && npm run check:lint",
     "check:svelte": "svelte-check --ignore g'dist,lib'",
     "check:type": "tsc --noEmit -p ./tsconfig.json",

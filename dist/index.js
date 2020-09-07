@@ -1136,8 +1136,8 @@
 
     function add_css$1() {
     	var style = element("style");
-    	style.id = "svelte-1o1tsxk-style";
-    	style.textContent = ".dropContainer.svelte-1o1tsxk{height:100%;width:100%;overscroll-behavior:contain}.dragContainer.svelte-1o1tsxk{width:fit-content;height:fit-content;flex-shrink:0;flex-grow:0}.horizontal.svelte-1o1tsxk{display:flex;overflow-x:scroll}.vertical.svelte-1o1tsxk{overflow-y:scroll}";
+    	style.id = "svelte-1flfk8o-style";
+    	style.textContent = ".dropContainer.svelte-1flfk8o{height:100%;width:100%;overscroll-behavior:contain}.dragContainer.svelte-1flfk8o{width:fit-content;height:fit-content;flex-shrink:0;flex-grow:0}.horizontal.svelte-1flfk8o{display:flex;overflow-x:scroll}.vertical.svelte-1flfk8o{overflow-y:scroll}";
     	append(document_1.head, style);
     }
 
@@ -1215,7 +1215,7 @@
 
     			attr(div, "class", div_class_value = "" + (null_to_empty(`dropContainer ${/*$cache*/ ctx[11].direction === "horizontal"
 			? "horizontal"
-			: "vertical"}`) + " svelte-1o1tsxk"));
+			: "vertical"}`) + " svelte-1flfk8o"));
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
@@ -1237,7 +1237,7 @@
 
     			if (!current || dirty[0] & /*$cache*/ 2048 && div_class_value !== (div_class_value = "" + (null_to_empty(`dropContainer ${/*$cache*/ ctx[11].direction === "horizontal"
 			? "horizontal"
-			: "vertical"}`) + " svelte-1o1tsxk"))) {
+			: "vertical"}`) + " svelte-1flfk8o"))) {
     				attr(div, "class", div_class_value);
     			}
     		},
@@ -1296,7 +1296,7 @@
 
     			attr(div, "class", div_class_value = "" + (null_to_empty(`dropContainer ${/*$cache*/ ctx[11].direction === "horizontal"
 			? "horizontal"
-			: "vertical"}`) + " svelte-1o1tsxk"));
+			: "vertical"}`) + " svelte-1flfk8o"));
 
     			add_render_callback(() => /*div_elementresize_handler*/ ctx[31].call(div));
     		},
@@ -1321,7 +1321,7 @@
 
     			if (!current || dirty[0] & /*$cache*/ 2048 && div_class_value !== (div_class_value = "" + (null_to_empty(`dropContainer ${/*$cache*/ ctx[11].direction === "horizontal"
 			? "horizontal"
-			: "vertical"}`) + " svelte-1o1tsxk"))) {
+			: "vertical"}`) + " svelte-1flfk8o"))) {
     				attr(div, "class", div_class_value);
     			}
     		},
@@ -1372,7 +1372,7 @@
     			div = element("div");
     			if (listItem_slot) listItem_slot.c();
     			t = space();
-    			attr(div, "class", "dragContainer svelte-1o1tsxk");
+    			attr(div, "class", "dragContainer svelte-1flfk8o");
     			this.first = div;
     		},
     		m(target, anchor) {
@@ -1436,7 +1436,7 @@
     			div = element("div");
     			if (listItem_slot) listItem_slot.c();
     			t = space();
-    			attr(div, "class", "dragContainer svelte-1o1tsxk");
+    			attr(div, "class", "dragContainer svelte-1flfk8o");
     			this.first = div;
     		},
     		m(target, anchor) {
@@ -2529,7 +2529,7 @@
     class DropList extends SvelteComponent {
     	constructor(options) {
     		super();
-    		if (!document_1.getElementById("svelte-1o1tsxk-style")) add_css$1();
+    		if (!document_1.getElementById("svelte-1flfk8o-style")) add_css$1();
 
     		init(
     			this,

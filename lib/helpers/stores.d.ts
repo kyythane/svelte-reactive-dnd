@@ -9,10 +9,10 @@ export interface DropTargetCacheStore extends Readable<DropTargetCache> {
 }
 export declare function createDropTargetCache(initialState: Pick<DropTargetCache, 'items' | 'direction'>): DropTargetCacheStore;
 export declare const dropTargetId: {
-    subscribe: (run: (value: number) => void, invalidate?: (value?: number) => void) => () => void;
+    subscribe: any;
     next: () => number;
 };
 export declare const dropGroupId: {
-    subscribe: (run: (value: number) => void, invalidate?: (value?: number) => void) => () => void;
+    subscribe: any;
     next: () => number;
 };

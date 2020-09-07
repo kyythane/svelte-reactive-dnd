@@ -13,3 +13,4 @@ node_modules/
 /src/components/**/*.js
 /src/**/*.d.ts
 **/*.map
+**/*.tsx

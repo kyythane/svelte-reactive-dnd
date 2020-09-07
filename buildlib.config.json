@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "ES6",
+        "rootDir": "./src",
+        "outDir": "./lib",
+        "declarationDir": "./lib",
+        "declaration": true,
+        "allowJs": true,
+        "jsxFactory": "h",
+        "jsx": "preserve"
+    },
+    "files": [
+        "./node_modules/svelte2tsx/svelte-shims.d.ts",
+        "./node_modules/svelte2tsx/svelte-jsx.d.ts"
+    ],
+    "include": [
+        "src/**/*"
+    ]
+}

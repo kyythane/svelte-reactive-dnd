@@ -6,6 +6,7 @@
         "src/**/*.d.ts": {
             "when": "$(basename).ts"
         },
-        "**/*.js.map": true
+        "**/*.js.map": true,
+        "**/*.tsx": true
     },
 }
