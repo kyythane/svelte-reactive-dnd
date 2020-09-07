@@ -69,7 +69,7 @@
     direction,
   });
 
-  let cachedRects: Array<Rect> = [];
+  let cachedRects: Array<Rect | undefined> = [];
   let cachedDropZoneRect: Rect;
   let cachedDisplay: string | undefined;
   let wrappingElements: { [id: string]: HTMLDivElement } = {};
@@ -78,7 +78,7 @@
   let currentHeight: number = 0;
   let mounted = false;
   let potentiallDraggedId: Id | undefined = undefined;
-  let currentlyDraggingOver: HoverResult | undefined = undefined;
+  let currentlyDraggingOver: HoverResult = undefined;
   let previouslyDraggedOver: HoverResult[] = [];
   let draggableDragStart: Position | undefined = undefined;
   let handleDelayedEvent: (() => void) | undefined;
@@ -108,28 +108,28 @@
       ($dragging === "picking-up" || $dragging === "dragging")
     ) {
       event.preventDefault();
-      dragTween!.set({
-        x: event.clientX - draggableDragStart!.x,
-        y: event.clientY - draggableDragStart!.y,
-      });
+      $dragTween = {
+        x: event.clientX - draggableDragStart.x,
+        y: event.clientY - draggableDragStart.y,
+      };
     }
   };
 
   const cleanupAfterDrag = () => {
     $dragging = "none";
-    document.body.removeChild($dragTarget!.dragElement);
+    document.body.removeChild($dragTarget.dragElement);
     let containingElement =
-      wrappingElements[($dragTarget!.item.id as unknown) as string];
+      wrappingElements[($dragTarget.item.id as unknown) as string];
     containingElement.style[$cache.dimensionKey] = "";
     containingElement.style.paddingTop = "";
     containingElement.style.paddingBottom = "";
     containingElement.style.paddingLeft = "";
     containingElement.style.paddingRight = "";
     (containingElement
-      .children[0] as HTMLElement).style.display = cachedDisplay!;
+      .children[0] as HTMLElement).style.display = cachedDisplay;
     if (
       !!currentlyDraggingOver &&
-      currentlyDraggingOver.item.id === $dragTarget!.item.id
+      currentlyDraggingOver.item.id === $dragTarget.item.id
     ) {
       currentlyDraggingOver = undefined;
       hoverEnterElementTween = undefined;
@@ -191,19 +191,19 @@
           offset = currentDropTarget.dropTarget.rect;
         }
         const position = {
-          x: offset.x - $dragTarget!.sourceRect.x,
-          y: offset.y - $dragTarget!.sourceRect.y,
+          x: offset.x - $dragTarget.sourceRect.x,
+          y: offset.y - $dragTarget.sourceRect.y,
         };
         // Tweened .set returns a promise that resolves, but our types don't show that
-        await dragTween!.set(position);
+        await dragTween.set(position);
         currentDropTarget.dropTarget.dropCallback(hoverResult);
         // We only send drop events when reordering a list, since the element never really left
         if (currentDropTarget.dropTarget.id !== id) {
           const dragOutResult = {
-            item: $dragTarget!.item,
+            item: $dragTarget.item,
             listSnapshot: [
               ...$cache.items.filter(
-                (cachedItem) => cachedItem.id !== $dragTarget!.item.id
+                (cachedItem) => cachedItem.id !== $dragTarget.item.id
               ),
             ],
             destinationDropZone: currentDropTarget.dropTarget.id,
@@ -220,17 +220,17 @@
         cleanupAfterDrag();
       } else {
         $dragging = "returning";
-        sourceElementTween!.set($dragTarget!.sourceRect[$cache.dimensionKey]);
+        sourceElementTween.set($dragTarget.sourceRect[$cache.dimensionKey]);
         if (!!currentlyDraggingOver) {
           startDragOff();
         }
         // Tweened .set returns a promise that resolves, but our types don't show that
-        await dragTween!.set({ x: 0, y: 0 });
+        await dragTween.set({ x: 0, y: 0 });
         if (!!dropGroup && dropGroup.key === hierarchyKey) {
-          dropGroup.onDragCancel($dragTarget!.item);
+          dropGroup.onDragCancel($dragTarget.item);
         }
         dispatch("dragcancelled", {
-          item: $dragTarget!.item,
+          item: $dragTarget.item,
         });
         cleanupAfterDrag();
       }
@@ -280,7 +280,7 @@
           wrappingElements[(potentiallDraggedId as unknown) as string];
         const cloned = makeDraggableElement(
           containingElement,
-          potentiallDraggedId!
+          potentiallDraggedId
         );
         document.body.append(cloned);
         $dragTarget = {
@@ -299,7 +299,7 @@
           }
         );
         sourceElementTween = tweened(
-          $dragTarget!.sourceRect[$cache.dimensionKey],
+          $dragTarget.sourceRect[$cache.dimensionKey],
           {
             duration: $dragDropSettings.animationMs,
             easing: cubicOut,
@@ -308,7 +308,7 @@
         updateContainingStyleSize(
           containingElement,
           $cache.direction,
-          $dragTarget!.sourceRect[$cache.dimensionKey]
+          $dragTarget.sourceRect[$cache.dimensionKey]
         );
         const child = containingElement.children[0] as HTMLElement;
         cachedDisplay = child.style.display;
@@ -320,6 +320,7 @@
         if (!!dropGroup && dropGroup.key === hierarchyKey) {
           dropGroup.onDragStart();
         }
+        // Tweened .set returns a promise that resolves, but our types don't show that
         await sourceElementTween.set(0);
         $dragging = "dragging";
         cachedRects = [];
@@ -351,13 +352,13 @@
     // Always filter because it isn't that expensive and it avoids special casing dropping back in the same list (as much as possible)
     const firstSection = $cache.items
       .slice(0, dropIndex)
-      .filter((cachedItem) => cachedItem.id !== $dragTarget!.item.id);
+      .filter((cachedItem) => cachedItem.id !== $dragTarget.item.id);
     const secondSection = $cache.items
       .slice(dropIndex)
-      .filter((cachedItem) => cachedItem.id !== $dragTarget!.item.id);
-    const listSnapshot = [...firstSection, $dragTarget!.item, ...secondSection];
+      .filter((cachedItem) => cachedItem.id !== $dragTarget.item.id);
+    const listSnapshot = [...firstSection, $dragTarget.item, ...secondSection];
     const finalIndex = listSnapshot.findIndex(
-      (snapshotItem) => snapshotItem.id === $dragTarget!.item.id
+      (snapshotItem) => snapshotItem.id === $dragTarget.item.id
     );
     if (!!currentlyDraggingOver) {
       removePaddingFromHoverResult(currentlyDraggingOver);
@@ -365,11 +366,11 @@
       hoverEnterElementTween = undefined;
     }
     const dropInResult = {
-      item: $dragTarget!.item,
+      item: $dragTarget.item,
       index: finalIndex,
       insertedAfter: finalIndex > 0 ? $cache.items[finalIndex - 1] : undefined,
       listSnapshot,
-      sourceDropZone: $dragTarget!.controllingDropZoneId,
+      sourceDropZone: $dragTarget.controllingDropZoneId,
     };
     if (!!dropGroup && dropGroup.key === hierarchyKey) {
       dropGroup.onDropIn(
@@ -401,7 +402,7 @@
       const sizes = $hoverLeaveElementTweens;
       startingSize = Math.min(
         sizes[draggedOffIndex],
-        $dragTarget!.cachedRect[$cache.dimensionKey]
+        $dragTarget.cachedRect[$cache.dimensionKey]
       );
       const filteredSizes = sizes.filter(
         (_, index) => index !== draggedOffIndex
@@ -427,8 +428,8 @@
     }
     const indexOfCurrent = previouslyDraggedOver.findIndex(
       (prev) =>
-        prev.item.id === currentlyDraggingOver!.item.id &&
-        prev.placement === currentlyDraggingOver!.placement
+        prev.item.id === currentlyDraggingOver.item.id &&
+        prev.placement === currentlyDraggingOver.placement
     );
     let previousTweenValues = !!hoverLeaveElementTweens
       ? $hoverLeaveElementTweens
@@ -447,7 +448,7 @@
         ...previousTweenValues,
         Math.min(
           $hoverEnterElementTween,
-          $dragTarget!.cachedRect[$cache.dimensionKey]
+          $dragTarget.cachedRect[$cache.dimensionKey]
         ),
       ],
       {
@@ -491,7 +492,7 @@
           duration: $dragDropSettings.animationMs,
         });
         /* Use truncation rather than floor because it is more consistent 
-                   Math.trunc(1.1) === 1, Math.trunc(-1.1) === -1 */
+               Math.trunc(1.1) === 1, Math.trunc(-1.1) === -1 */
         dragScrollTarget = Math.trunc(
           dragScrollCurrent -
             lerp(
@@ -540,18 +541,17 @@
     for (let index = 0; index < $cache.items.length; index++) {
       const cachedItem = $cache.items[index];
       const element = wrappingElements[(cachedItem.id as unknown) as string];
-      // undefined check here is protection in case the
       if (index >= cachedRects.length || cachedRects[index] === undefined) {
         cachedRects[index] = element.getBoundingClientRect();
       }
-      let overlaps = overlap($dragTarget!.cachedRect, cachedRects[index]!);
+      let overlaps = overlap($dragTarget.cachedRect, cachedRects[index]!);
       let rectWithoutPadding = removePaddingFromRect(
         element,
-        cachedRects[index]
+        cachedRects[index]!
       );
       let placement = calculatePlacement(
         rectWithoutPadding,
-        $dragTarget!.cachedRect,
+        $dragTarget.cachedRect,
         $cache.direction
       );
       if (overlaps) {
@@ -580,10 +580,10 @@
     const midpoint = Math.trunc(
       (overlapping[0].index + overlapping[overlapping.length - 1].index) / 2
     );
-    let overlappedItem = overlapping.find((o) => o.index === midpoint)!;
+    let overlappedItem = overlapping.find((o) => o.index === midpoint);
     /* Only use 'before' placement at the start of the list. Since we are changing padding,
-         we want to reduce the chance of weird interactions with wrapping.
-         */
+     we want to reduce the chance of weird interactions with wrapping.
+     */
     if (overlappedItem.placement === "before" && overlappedItem.index > 0) {
       const indexBefore = overlappedItem.index - 1;
       const itemBefore = $cache.items[indexBefore];
@@ -609,8 +609,8 @@
   const enterDropZone = () => {
     active = true;
     dispatch("dropzoneenter", {
-      item: $dragTarget!.item,
-      rect: $dragTarget!.cachedRect,
+      item: $dragTarget.item,
+      rect: $dragTarget.cachedRect,
     });
   };
 
@@ -622,8 +622,8 @@
     dragScrollTarget = dragScrollCurrent;
     dragScrollTween = undefined;
     dispatch("dropzoneleave", {
-      item: $dragTarget!.item,
-      rect: $dragTarget!.cachedRect,
+      item: $dragTarget.item,
+      rect: $dragTarget.cachedRect,
     });
   };
 
@@ -673,7 +673,7 @@
 
   // Update list of items
   $: {
-    if ($dragging === "none" || hierarchyKey !== $dragTarget!.key) {
+    if ($dragging === "none" || hierarchyKey !== $dragTarget.key) {
       cache.set({
         items,
         direction,
@@ -688,7 +688,7 @@
       ($dragging === "picking-up" || $dragging === "returning")
     ) {
       updateContainingStyleSize(
-        wrappingElements[$dragTarget!.item.id],
+        wrappingElements[$dragTarget.item.id],
         $cache.direction,
         $sourceElementTween
       );
@@ -788,9 +788,9 @@
   const canDrop = () => {
     return (
       !disabled &&
-      $dragTarget!.key === hierarchyKey &&
+      $dragTarget.key === hierarchyKey &&
       capacity - $cache.items.length > 0 &&
-      allowDrop($dragTarget!.item, $dragTarget!.controllingDropZoneId)
+      allowDrop($dragTarget.item, $dragTarget.controllingDropZoneId)
     );
   };
 
@@ -818,7 +818,7 @@
   // Update scroll
   $: {
     if ($dragging === "dragging" && !!dragScrollTween) {
-      dropZone![$cache.scrollKey] = $dragScrollTween;
+      dropZone[$cache.scrollKey] = $dragScrollTween;
       postScrollUpdate();
     }
   }
@@ -830,10 +830,10 @@
       if ($dragging !== "none") {
         dragTarget.update((target) => {
           const dragOffset = $dragTween;
-          target!.dragElement.style.transform = `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`;
-          target!.cachedRect = moveRectTo(target!.cachedRect, {
-            x: dragOffset.x + target!.sourceRect.x,
-            y: dragOffset.y + target!.sourceRect.y,
+          target.dragElement.style.transform = `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`;
+          target.cachedRect = moveRectTo(target.cachedRect, {
+            x: dragOffset.x + target.sourceRect.x,
+            y: dragOffset.y + target.sourceRect.y,
           });
           return target;
         });
@@ -843,7 +843,7 @@
           .map((target) => {
             return {
               target,
-              overlap: percentOverlap($dragTarget!.cachedRect, target.rect),
+              overlap: percentOverlap($dragTarget.cachedRect, target.rect),
             };
           })
           .reduce((acc, next) => {
@@ -893,37 +893,13 @@
   });
 </script>
 
-<style>
-  .dropContainer {
-    height: 100%;
-    width: 100%;
-    overscroll-behavior: contain;
-  }
-
-  .dragContainer {
-    width: fit-content;
-    height: fit-content;
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
-
-  .horizontal {
-    display: flex;
-    overflow-x: scroll;
-  }
-
-  .vertical {
-    overflow-y: scroll;
-  }
-</style>
-
 <svelte:window
   on:mousemove={moveDraggable}
   on:mouseup={endDrag}
   on:mouseleave={endDrag} />
 <!--
 <div>
-    <slot name="standin" data={}></slot>
+<slot name="standin" data={}></slot>
 </div>
 -->
 

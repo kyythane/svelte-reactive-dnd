@@ -1,7 +1,5 @@
 <script lang="ts">
   import { setContext, createEventDispatcher } from "svelte";
-  import { writable } from "svelte/store";
-  import type { Writable } from "svelte/store";
   import type { DropGroup, Item } from "../helpers/types";
   import { dropGroupId } from "../helpers/stores";
   const key: string = `drop-group-${dropGroupId.next()}`;

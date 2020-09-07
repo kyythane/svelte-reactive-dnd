@@ -4,7 +4,12 @@
   "description": "A drag and drop library for Svelte",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "npm run check:svelte && npm run check:type && npm run check:lint",
+    "check:svelte": "svelte-check",
+    "check:type": "tsc -p ./tsconfig.json",
+    "check:lint": "eslint '**/*.{ts, svelte}'",
+    "fix:lint": "eslint '**/*.{ts, svelte}' --fix"
   },
   "repository": {
     "type": "git",
@@ -31,9 +36,18 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^5.0.2",
     "@tsconfig/svelte": "^1.0.10",
+    "@typescript-eslint/eslint-plugin": "^3.9.0",
+    "@typescript-eslint/parser": "^3.9.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-svelte3": "^2.7.3",
+    "prettier": "^2.0.5",
+    "prettier-plugin-svelte": "^1.1.0",
     "rollup": "^2.26.10",
     "rollup-plugin-svelte": "^6.0.0",
     "svelte": "^3.24.1",
+    "svelte-check": "^1.0.36",
     "tslib": "^2.0.1",
     "typescript": "^4.0.2"
   },

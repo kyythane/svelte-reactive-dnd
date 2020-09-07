@@ -1,5 +1,11 @@
-import { writable, Writable } from 'svelte/store';
-import type { DragDropSettings, DropTarget, DragTarget, DropTargetCache } from './types';
+import { writable, Writable, Readable } from 'svelte/store';
+import type {
+    DragDropSettings,
+    DropTarget,
+    DragTarget,
+    DropTargetCache,
+    Direction,
+} from './types';
 
 export const dragDropSettings: Writable<DragDropSettings> = writable({
     defaults: {
@@ -17,36 +23,52 @@ export const dragDropSettings: Writable<DragDropSettings> = writable({
     maxDragScrollSpeed: 175,
 });
 export const dropTargets: Writable<Array<DropTarget>> = writable([]);
-export const dragging: Writable<'none' | 'picking-up' | 'dragging' | 'returning' | 'dropping'> = writable('none');
+export const dragging: Writable<
+    'none' | 'picking-up' | 'dragging' | 'returning' | 'dropping'
+> = writable('none');
 export const dragTarget: Writable<DragTarget | undefined> = writable(undefined);
 
-function getKeysForDirection(direction: 'horizontal' | 'vertical') {
+function getKeysForDirection(
+    direction: Direction
+): Pick<DropTargetCache, 'scrollKey' | 'dimensionKey' | 'paddingKeys'> {
     return {
         scrollKey: direction === 'vertical' ? 'scrollTop' : 'scrollLeft',
         dimensionKey: direction === 'vertical' ? 'height' : 'width',
-        paddingKeys: direction === 'vertical' ? { before: 'paddingTop', after: 'paddingBottom' }
-            : { before: 'paddingLeft', after: 'paddingRight' },
+        paddingKeys:
+            direction === 'vertical'
+                ? { before: 'paddingTop', after: 'paddingBottom' }
+                : { before: 'paddingLeft', after: 'paddingRight' },
     };
 }
-export function createDropTargetCache(initialState: Pick<DropTargetCache, 'items' | 'direction'>) {
+
+export interface DropTargetCacheStore extends Readable<DropTargetCache> {
+    set: ({
+        items,
+        direction,
+    }: Pick<DropTargetCache, 'items' | 'direction'>) => void;
+}
+
+export function createDropTargetCache(
+    initialState: Pick<DropTargetCache, 'items' | 'direction'>
+): DropTargetCacheStore {
     const { subscribe, set } = writable({
         ...initialState,
-        ...getKeysForDirection(initialState.direction)
+        ...getKeysForDirection(initialState.direction),
     });
     return {
         subscribe,
         set: ({
             items,
-            direction
+            direction,
         }: Pick<DropTargetCache, 'items' | 'direction'>) => {
             set({
                 items,
                 direction,
-                ...getKeysForDirection(initialState.direction)
-            })
-        }
-    }
-};
+                ...getKeysForDirection(initialState.direction),
+            });
+        },
+    };
+}
 
 function createAutoIncrementingId() {
     const { subscribe, update } = writable(0);
@@ -54,14 +76,13 @@ function createAutoIncrementingId() {
         subscribe,
         next: () => {
             let curr = 0;
-            update(n => {
+            update((n) => {
                 curr = n;
-                return n + 1
+                return n + 1;
             });
             return curr;
-        }
+        },
     };
 }
 export const dropTargetId = createAutoIncrementingId();
 export const dropGroupId = createAutoIncrementingId();
-

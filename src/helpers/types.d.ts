@@ -1,23 +1,34 @@
-export type Id = number | string;
-export type Placement = 'before' | 'after';
-export type Direction = 'horizontal' | 'vertical';
-export type Item = { id: Id };
-export type DragEventHandlers = {
+export declare type Id = number | string;
+export declare type Placement = 'before' | 'after';
+export declare type Item = {
+    id: Id;
+};
+export declare type DragEventHandlers = {
     handleMouseDown: (event: MouseEvent, itemId: Id) => void;
     handleMouseUp: (event: MouseEvent) => void;
     handleMouseMove: (event: MouseEvent) => void;
 };
-export type HoverResult = {
+export declare type HoverResult = {
     index: number;
     item: Item;
     element: HTMLDivElement;
     placement: Placement;
 };
-export type DropCallback = (dragTarget: HoverResult | undefined) => void;
-export type HoverCallback = () => HoverResult | undefined;
-export type Position = { x: number; y: number };
-export type Rect = { x: number; y: number; width: number; height: number };
-export type DropTarget = {
+export declare type DropCallback = (
+    dragTarget: HoverResult | undefined
+) => void;
+export declare type HoverCallback = () => HoverResult | undefined;
+export declare type Position = {
+    x: number;
+    y: number;
+};
+export declare type Rect = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+};
+export declare type DropTarget = {
     id: number;
     key?: string;
     rect: Rect;
@@ -32,16 +43,22 @@ export type DropTarget = {
     cleanupDropZone: () => void;
     canDrop: () => boolean;
 };
-export type DropTargetCache = {
+export declare type DropTargetCache = {
     items: Array<Item>;
     direction: 'horizontal' | 'vertical';
     scrollKey: 'scrollTop' | 'scrollLeft';
     dimensionKey: 'height' | 'width';
     paddingKeys:
-        | { before: 'paddingTop'; after: 'paddingBottom' }
-        | { before: 'paddingLeft'; after: 'paddingRight' };
+        | {
+              before: 'paddingTop';
+              after: 'paddingBottom';
+          }
+        | {
+              before: 'paddingLeft';
+              after: 'paddingRight';
+          };
 };
-export type DragTarget = {
+export declare type DragTarget = {
     key?: string;
     item: Item;
     controllingDropZoneId: number;
@@ -49,7 +66,7 @@ export type DragTarget = {
     dragElement: HTMLDivElement;
     cachedRect: Rect;
 };
-export type DragDropSettings = {
+export declare type DragDropSettings = {
     defaults: {
         disableScrollOnDrag: boolean;
         disableDropSpacing: boolean;
@@ -64,7 +81,7 @@ export type DragDropSettings = {
     minDragScrollSpeed: number;
     maxDragScrollSpeed: number;
 };
-export type DropGroup = {
+export declare type DropGroup = {
     key: string;
     onDragStart: () => void;
     onDropIn: (
