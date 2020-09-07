@@ -3,7 +3,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import sveltePreprocess from 'svelte-preprocess';
-// import dts from 'rollup-plugin-dts';
 import pkg from './package.json';
 
 const name = pkg.name
@@ -13,7 +12,7 @@ const name = pkg.name
 
 export default [
     {
-        input: 'src/index.js',
+        input: 'src/index.ts',
         output: [
             { file: pkg.module, format: 'es' },
             { file: pkg.main, format: 'umd', name },
@@ -24,6 +23,10 @@ export default [
                 plugins: [terser()],
             },
         ],
+        external: [
+            ...Object.keys(pkg.dependencies || {}),
+            ...Object.keys(pkg.peerDependencies || {}),
+        ],
         plugins: [
             svelte({
                 preprocess: sveltePreprocess(),
@@ -32,24 +35,4 @@ export default [
             typescript(),
         ],
     },
-    /*{
-        input: 'src/type_exports.d.ts',
-        external: [
-            'svelte',
-            'svelte/internal',
-            'svelte/store',
-            'svelte/motion',
-            'svelte/easing',
-        ],
-        output: {
-            file: pkg.main.replace('.js', '.d.ts'),
-            format: 'es',
-        },
-        plugins: [
-            svelte({
-                preprocess: sveltePreprocess(),
-            }),
-            dts(),
-        ],
-    },*/
 ];

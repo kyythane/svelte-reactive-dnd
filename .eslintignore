@@ -4,3 +4,4 @@ node_modules
 **/src/helpers/*.js
 **/*.js.map
 dist/*
+lib/*
