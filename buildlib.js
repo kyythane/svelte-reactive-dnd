@@ -2,6 +2,8 @@ import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import svelte2tsx from 'svelte2tsx';
+import sveltePreprocess from 'svelte-preprocess';
+import { compile as svelteCompile, preprocess } from 'svelte/compiler';
 
 const quiet =
     process.argv.findIndex((arg) => arg === '--quiet' || arg === '-q') >= 0;
@@ -74,12 +76,35 @@ function cleanUpSrc() {
 
 function copySvelteFiles() {
     console.log('copy svelte files');
-    return execPromise('cp -a ./src/components ./lib/');
+    const fileNames = fromDir('./src', '.svelte');
+    return Promise.all(
+        fileNames.map(async (filename) => {
+            const file = fs
+                .readFileSync(filename, 'utf-8')
+                .replace(/\s+$/, '')
+                .replace(/\r\n/g, '\n');
+            const processed = await preprocess(file, sveltePreprocess(), {
+                filename,
+            });
+            fs.writeFileSync(
+                filename.replace('src', 'lib'),
+                processed,
+                'utf-8'
+            );
+        })
+    );
 }
 
-function cleanUpLib() {
-    console.log('remove jsx files');
-    return execPromise("find ./lib -print | grep -E 'jsx' | xargs rm -f");
+async function cleanUpLib() {
+    console.log('cleanup and format lib');
+    await execPromise("find ./lib -print | grep -E 'jsx' | xargs rm -f");
+    await execPromise('prettier --write ./lib/**/*.svelte');
+    const file = fs.readFileSync('./lib/index.d.ts', 'utf-8');
+    let stripped = file;
+    while (stripped.indexOf('.svelte') > -1) {
+        stripped = stripped.replace('.svelte', '');
+    }
+    fs.writeFileSync('./lib/index.d.ts', stripped, 'utf-8');
 }
 
 async function build() {
