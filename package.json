@@ -16,10 +16,10 @@
     "build:dist": "rollup -c",
     "build:lib": "node -r esm ./buildlib.js",
     "check": "npm run check:svelte && npm run check:type && npm run check:lint",
-    "check:svelte": "svelte-check",
+    "check:svelte": "svelte-check --ignore 'dist,lib'",
     "check:type": "tsc --noEmit -p ./tsconfig.json",
-    "check:lint": "eslint . && prettier --check ./**/*.svelte",
-    "fix:lint": "eslint . --fix && prettier --write ./**/*.svelte"
+    "check:lint": "eslint . && prettier --check ./src/**/*.svelte",
+    "fix:lint": "eslint . --fix && prettier --write ./src/**/*.svelte"
   },
   "husky": {
     "hooks": {
