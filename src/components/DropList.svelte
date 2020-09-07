@@ -303,7 +303,10 @@
         if (!!draggableDragStart && $dragging === 'none') {
             let dx = draggableDragStart.x - event.clientX;
             let dy = draggableDragStart.y - event.clientY;
-            if (dx * dx + dy * dy > $dragDropSettings.globals.dragThresholdPixels) {
+            if (
+                dx * dx + dy * dy >
+                $dragDropSettings.globals.dragThresholdPixels
+            ) {
                 $dragging = 'picking-up';
                 const containingElement =
                     wrappingElements[

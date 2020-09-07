@@ -68,7 +68,7 @@ Start using the parts!
 
 ## API 
 There are 4 exports from this library:
-- [DropList](https://github.com/kyythane/svelte-reactive-dnd/docs/DropList.md) 
-- [DragHandle](https://github.com/kyythane/svelte-reactive-dnd/docs/DragHandle.md) 
-- [DropGroup](https://github.com/kyythane/svelte-reactive-dnd/docs/DropGroup.md) 
-- [dragDropSetting](https://github.com/kyythane/svelte-reactive-dnd/docs/dragDropSetting.md) 
+- [DropList](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropList.md) 
+- [DragHandle](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DragHandle.md) 
+- [DropGroup](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropGroup.md) 
+- [dragDropSetting](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/dragDropSetting.md) 

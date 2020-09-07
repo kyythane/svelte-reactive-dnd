@@ -38,8 +38,8 @@ export type DropTargetCache = {
     scrollKey: 'scrollTop' | 'scrollLeft';
     dimensionKey: 'height' | 'width';
     paddingKeys:
-    | { before: 'paddingTop'; after: 'paddingBottom' }
-    | { before: 'paddingLeft'; after: 'paddingRight' };
+        | { before: 'paddingTop'; after: 'paddingBottom' }
+        | { before: 'paddingLeft'; after: 'paddingRight' };
 };
 export type DragTarget = {
     key?: string;
