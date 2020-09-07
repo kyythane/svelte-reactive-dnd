@@ -124,6 +124,9 @@
 
     $: {
         hierarchyKey = key ?? dropGroup?.key;
+        if (!identifier && !!dropGroup && !!key) {
+            throw new Error(`DropList belongs to a DropGroup, but does not provide an identifier`);
+        }
     }
 
     const dispatch = createEventDispatcher();
@@ -239,7 +242,7 @@
                         dropGroup.onDragOut(
                             dragOutResult.item,
                             dragOutResult.listSnapshot,
-                            identifier ?? id
+                            identifier ?? 'error: identifier not defined'
                         );
                     }
                     dispatch('itemdraggedout', dragOutResult);
@@ -256,7 +259,7 @@
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await dragTween.set({ x: 0, y: 0 });
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragCancel($dragTarget.item, identifier ?? id);
+                    dropGroup.onDragCancel($dragTarget.item, identifier ?? 'error: identifier not defined');
                 }
                 dispatch('dragcancelled', {
                     item: $dragTarget.item,
@@ -354,7 +357,7 @@
                     .filter((target) => target.key === hierarchyKey)
                     .forEach((target) => target.prepareDropZone());
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragStart($dragTarget.item, identifier ?? id);
+                    dropGroup.onDragStart($dragTarget.item, identifier ?? 'error: identifier not defined');
                 }
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await sourceElementTween.set(0);
@@ -420,7 +423,7 @@
                 dropInResult.insertedAfter,
                 dropInResult.listSnapshot,
                 dropInResult.sourceDropZone,
-                identifier ?? id
+                identifier ?? 'error: identifier not defined'
             );
         }
         dispatch('itemdroppedin', dropInResult);
