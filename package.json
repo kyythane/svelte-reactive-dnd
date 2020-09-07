@@ -5,6 +5,7 @@
   "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -14,7 +15,7 @@
     "build": "rollup -c",
     "check": "npm run check:svelte && npm run check:type && npm run check:lint",
     "check:svelte": "svelte-check",
-    "check:type": "tsc -p ./tsconfig.json",
+    "check:type": "tsc --noEmit -p ./tsconfig.json",
     "check:lint": "eslint . && prettier --check ./**/*.svelte",
     "fix:lint": "eslint . --fix && prettier --write ./**/*.svelte"
   },
