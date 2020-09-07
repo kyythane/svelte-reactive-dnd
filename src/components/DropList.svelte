@@ -682,8 +682,8 @@
         if (mounted) {
             if (
                 enableResizeListeners &&
-                (cachedDropZoneRect?.width !== currentWidth ||
-                    cachedDropZoneRect?.height !== currentHeight)
+                (cachedDropZoneRect.width !== currentWidth ||
+                    cachedDropZoneRect.height !== currentHeight)
             ) {
                 let bounding = dropZone.getBoundingClientRect();
                 cachedDropZoneRect = {
@@ -939,8 +939,8 @@
         cachedDropZoneRect = {
             x: bounding.left,
             y: bounding.top,
-            width: currentWidth,
-            height: currentHeight,
+            width: enableResizeListeners ? currentWidth : bounding.width,
+            height: enableResizeListeners ? currentHeight : bounding.height,
         };
         $dropTargets = [
             ...$dropTargets,
