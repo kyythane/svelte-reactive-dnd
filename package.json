@@ -13,8 +13,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm fix:lint",
-      "pre-push": "npm check"
+      "pre-commit": "npm run fix:lint",
+      "pre-push": "npm run heck"
     }
   },
   "repository": {
