@@ -96,9 +96,8 @@ function copySvelteFiles() {
 }
 
 async function cleanUpLib() {
-    console.log('cleanup and format lib');
+    console.log('cleanup lib');
     await execPromise("find ./lib -print | grep -E 'jsx' | xargs rm -f");
-    await execPromise('prettier --write ./lib/**/*.svelte');
     const file = fs.readFileSync('./lib/index.d.ts', 'utf-8');
     let stripped = file;
     while (stripped.indexOf('.svelte') > -1) {
