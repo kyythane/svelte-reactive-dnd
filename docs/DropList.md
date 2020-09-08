@@ -81,3 +81,32 @@ Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`. Default val
 ### - dragmove
 
 ### - dragstart
+
+## Slots
+
+The `slot` exposed by `DropList` is named `listItem`.
+The slot's `data` property provides the `item`, as well as `isDraggingOver` and `dragEventHandlers`.
+
+The the generated type for `item` is `unknown`, which is a bit of a pain.
+It's because of current limitations of the Svelte types.
+If you know a work around, let me know!
+
+`isDraggingOver` is a boolean, and is true whenever the dragging item is "in" the same index as the item in this slot.
+
+`dragEventHandlers` only needs to be used if you are _not_ using `DragHandle`.
+If you used `dragEventHandlers`, all three methods all need to be hooked up to the corresponding mouse events: `on:mousedown`, `on:mouseup`, and `on:mousemove`.
+`handleMouseUp` and `handleMouseMove` can be wired up directly, but `handleMouseDown` requires the `id` of what's being moved to be passed in.
+`handleMouseDown` can optionally take a callback that'll be called if the drag sensor determines that the user clicked, rather than dragged.
+
+```ts
+type DragEventHandlers = {
+    handleMouseDown: (event: MouseEvent, id: number | string, delayedEvent?: (event: MouseEvent) => void) => void;
+    handleMouseUp: () => void;
+    handleMouseMove: (event: MouseEvent) => void;
+};
+```
+
+Examples:  
+[Basic slot usage](https://svelte.dev/repl/41d1808f4cb541228d4b602eb043d03d?version=3.24.1)  
+[Using isDraggingOver](https://svelte.dev/repl/e25569ee35c046af8b98c1650a264ba6?version=3.24.1)  
+[Manually wiring up events](https://svelte.dev/repl/9b52029aeeee4eed8da7b295565ae5f9?version=3.24.1)  
