@@ -5,6 +5,9 @@ import type {
     Id,
     Placement,
     DragTarget,
+    Layout,
+    PaddingMap,
+    Direction,
 } from './types';
 import type { Writable } from 'svelte/store';
 
@@ -48,13 +51,34 @@ export function updateCursor(
     });
 }
 
-export function overlap(rect1: Rect, rect2: Rect): boolean {
-    return !(
-        rect1.x + rect1.width < rect2.x ||
-        rect1.y + rect1.height < rect2.y ||
-        rect2.x + rect2.width < rect1.x ||
-        rect2.y + rect2.height < rect1.y
-    );
+export function overlap(rect1: Rect, toCompare: Rect | Layout): boolean {
+    if ('rect' in toCompare) {
+        const rect2 = {
+            x: toCompare.rect.x - toCompare.offsets.paddingLeft,
+            y: toCompare.rect.y - toCompare.offsets.paddingTop,
+            width:
+                rect1.width +
+                toCompare.offsets.paddingLeft +
+                toCompare.offsets.paddingRight,
+            height:
+                rect1.height +
+                toCompare.offsets.paddingTop +
+                toCompare.offsets.paddingBottom,
+        };
+        return !(
+            rect1.x + rect1.width < rect2.x ||
+            rect1.y + rect1.height < rect2.y ||
+            rect2.x + rect2.width < rect1.x ||
+            rect2.y + rect2.height < rect1.y
+        );
+    } else {
+        return !(
+            rect1.x + rect1.width < toCompare.x ||
+            rect1.y + rect1.height < toCompare.y ||
+            toCompare.x + toCompare.width < rect1.x ||
+            toCompare.y + toCompare.height < rect1.y
+        );
+    }
 }
 
 export function percentOverlap(
@@ -75,23 +99,16 @@ export function computeMidpoint(rect: Rect): Position {
     return { x: rect.width / 2 + rect.x, y: rect.height / 2 + rect.y };
 }
 
-export function removePaddingFromRect(element: HTMLElement, rect: Rect): Rect {
-    const top = pixelStringToNumber(element.style.paddingTop);
-    const left = pixelStringToNumber(element.style.paddingLeft);
-    const right = pixelStringToNumber(element.style.paddingRight);
-    const bottom = pixelStringToNumber(element.style.paddingBottom);
+export function createLayout(rect: Rect): Layout {
     return {
-        x: rect.x + left,
-        y: rect.y + top,
-        width: rect.width - (left + right),
-        height: rect.height - (top + bottom),
+        rect,
+        offsets: {
+            paddingTop: 0,
+            paddingBottom: 0,
+            paddingLeft: 0,
+            paddingRight: 0,
+        },
     };
-}
-
-export function pixelStringToNumber(pixelString: string): number {
-    return pixelString && pixelString.length > 0
-        ? Number.parseFloat(pixelString.substring(0, pixelString.length - 2))
-        : 0;
 }
 
 export function removePaddingFromHoverResult(result: HoverResult): void {
@@ -114,52 +131,83 @@ export function updateContainingStyleSize(
 }
 
 export function calculatePlacement(
-    rectA: Rect,
-    rectB: Rect,
+    dragRect: Rect,
+    layout: Layout,
     direction: 'horizontal' | 'vertical'
 ): Placement {
     const key = direction === 'horizontal' ? 'x' : 'y';
-    return computeMidpoint(rectA)[key] > computeMidpoint(rectB)[key]
+    return computeMidpoint(dragRect)[key] < computeMidpoint(layout.rect)[key]
         ? 'before'
         : 'after';
 }
 
-export function growOrShrinkRectInList(
-    rects: Array<Rect>,
+export function growOrShrinkLayoutInList(
+    layouts: Array<Layout>,
+    startIndex: number,
+    delta: number,
+    direction: Direction,
+    placement: Placement,
+    paddingMap: PaddingMap
+): Array<Layout> {
+    const newLayouts = [...layouts];
+    const deltaPosition =
+        direction === 'horizontal' ? { x: delta, y: 0 } : { x: 0, y: delta };
+    newLayouts[startIndex] = resizeLayout(
+        newLayouts[startIndex],
+        delta,
+        direction,
+        placement,
+        paddingMap
+    );
+    for (let i: number = startIndex + 1; i < newLayouts.length; i++) {
+        newLayouts[i] = translateLayoutBy(newLayouts[i], deltaPosition);
+    }
+    return newLayouts;
+}
+
+function resizeLayout(
+    layout: Layout,
+    delta: number,
+    direction: Direction,
+    placement: Placement,
+    paddingMap: PaddingMap
+): Layout {
+    const offsets = { ...layout.offsets };
+    const rect = { ...layout.rect };
+    offsets[paddingMap[placement]] += delta;
+    if (placement === 'before') {
+        if (direction === 'horizontal') {
+            rect.x += delta;
+        } else {
+            rect.y += delta;
+        }
+    }
+    return { rect, offsets };
+}
+
+export function translateLayoutsBy(
+    layouts: Array<Layout>,
     startIndex: number,
     offset: Position
-): Array<Rect> {
-    const newRects = [...rects];
-    const toResize = newRects[startIndex];
-    if (!toResize || !offset) {
-        console.log(toResize, rects, startIndex, offset);
+): Array<Layout> {
+    const newLayouts = [...layouts];
+    for (let i: number = startIndex; i < newLayouts.length; i++) {
+        newLayouts[i] = translateLayoutBy(newLayouts[i], offset);
     }
-    newRects[startIndex] = {
-        x: toResize.x,
-        y: toResize.y,
-        width: toResize.width + offset.x,
-        height: toResize.height + offset.y,
+    return newLayouts;
+}
+
+function translateLayoutBy(
+    { rect: { x, y, width, height }, offsets }: Layout,
+    offset: Position
+): Layout {
+    const rect = {
+        x: x + offset.x,
+        y: y + offset.y,
+        width,
+        height,
     };
-    for (let i: number = startIndex + 1; i < newRects.length; i++) {
-        newRects[i] = translateRectBy(newRects[i], offset);
-    }
-    return newRects;
-}
-
-export function translateRectsBy(
-    rects: Array<Rect>,
-    startIndex: number,
-    offset: Position
-): Array<Rect> {
-    const newRects = [...rects];
-    for (let i: number = startIndex; i < newRects.length; i++) {
-        newRects[i] = translateRectBy(newRects[i], offset);
-    }
-    return newRects;
-}
-
-function translateRectBy(rect: Rect, offset: Position): Rect {
-    return moveRectTo(rect, { x: rect.x + offset.x, y: rect.y + offset.y });
+    return { rect, offsets: offsets };
 }
 
 export function moveRectTo({ width, height }: Rect, { x, y }: Position): Rect {

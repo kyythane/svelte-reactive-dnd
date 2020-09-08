@@ -17,6 +17,18 @@ export type DropCallback = (dragTarget: HoverResult | undefined) => void;
 export type HoverCallback = (fireEvent: boolean) => HoverResult | undefined;
 export type Position = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
+export type Layout = {
+    rect: Rect;
+    offsets: {
+        paddingTop: number;
+        paddingBottom: number;
+        paddingLeft: number;
+        paddingRight: number;
+    };
+};
+export type PaddingMap =
+    | { before: 'paddingTop'; after: 'paddingBottom' }
+    | { before: 'paddingLeft'; after: 'paddingRight' };
 export type DropTarget = {
     id: number;
     key: () => string;
@@ -33,15 +45,14 @@ export type DropTarget = {
     cleanupDropZone: () => void;
     canDrop: () => boolean;
     disabled: () => boolean;
+    dropPosition: () => Position;
 };
 export type DropTargetCache = {
     items: Array<Item>;
     direction: 'horizontal' | 'vertical';
     scrollKey: 'scrollTop' | 'scrollLeft';
     dimensionKey: 'height' | 'width';
-    paddingKeys:
-        | { before: 'paddingTop'; after: 'paddingBottom' }
-        | { before: 'paddingLeft'; after: 'paddingRight' };
+    paddingKeys: PaddingMap;
 };
 export type DragTarget = {
     key?: string;

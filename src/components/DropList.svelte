@@ -38,13 +38,12 @@
         calculatePlacement,
         overlap,
         percentOverlap,
-        removePaddingFromRect,
+        createLayout,
         removePaddingFromHoverResult,
         updateContainingStyleSize,
         moveRectTo,
-        pixelStringToNumber,
-        growOrShrinkRectInList,
-        translateRectsBy,
+        growOrShrinkLayoutInList,
+        translateLayoutsBy,
         lerp,
         updateCursor,
     } from '../helpers/utilities';
@@ -69,6 +68,7 @@
         HoverCallback,
         HoverResult,
         Placement,
+        Layout,
     } from '../helpers/types';
 
     export let items: Array<Item>;
@@ -96,7 +96,7 @@
         direction,
     });
 
-    let cachedRects: Array<Rect | undefined> = [];
+    let cachedRects: Array<Layout | undefined> = [];
     let cachedDropZoneRect: Rect;
     let cachedDisplay: string | undefined;
     let wrappingElements: { [id: string]: HTMLDivElement } = {};
@@ -187,6 +187,14 @@
         active = false;
     };
 
+    const dropPosition = () => {
+        if (!!currentlyDraggingOver) {
+            return { x: cachedDropZoneRect.x, y: cachedDropZoneRect.y };
+        }
+        const layout = cachedRects[currentlyDraggingOver.index];
+        return { x: layout.rect.x, y: layout.rect.y };
+    };
+
     const endDrag = async (event: MouseEvent) => {
         if (
             $dragTarget?.controllingDropZoneId === id &&
@@ -194,40 +202,14 @@
         ) {
             event.preventDefault();
             if (!!currentDropTarget) {
-                // Ensure we have the latest hoverResult, but don't update it to `undefined` if it was defined.
-                let hoverResult =
-                    currentDropTarget.dropTarget.hoverCallback(false) ||
-                    currentDropTarget.hoverResult;
+                const hoverResult = currentDropTarget.dropTarget.hoverCallback(
+                    false
+                );
                 $dragging = 'dropping';
-                let offset: { x: number; y: number };
-                // go go gadget structural typing
-                if (!!hoverResult) {
-                    const boundingRect = hoverResult.element.getBoundingClientRect();
-                    if (hoverResult.placement === 'before') {
-                        offset = boundingRect;
-                    } else {
-                        const strippedRect = removePaddingFromRect(
-                            hoverResult.element,
-                            boundingRect
-                        );
-                        if (direction === 'horizontal') {
-                            offset = {
-                                x: boundingRect.x + strippedRect.width,
-                                y: boundingRect.y,
-                            };
-                        } else {
-                            offset = {
-                                x: boundingRect.x,
-                                y: boundingRect.y + strippedRect.height,
-                            };
-                        }
-                    }
-                } else {
-                    offset = currentDropTarget.dropTarget.rect;
-                }
+                const destination = currentDropTarget.dropTarget.dropPosition();
                 const position = {
-                    x: offset.x - $dragTarget.sourceRect.x,
-                    y: offset.y - $dragTarget.sourceRect.y,
+                    x: destination.x - $dragTarget.sourceRect.x,
+                    y: destination.y - $dragTarget.sourceRect.y,
                 };
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await dragTween.set(position);
@@ -630,16 +612,14 @@
                 index >= cachedRects.length ||
                 cachedRects[index] === undefined
             ) {
-                cachedRects[index] = element.getBoundingClientRect();
+                cachedRects[index] = createLayout(
+                    element.getBoundingClientRect()
+                );
             }
-            let overlaps = overlap($dragTarget.cachedRect, cachedRects[index]!);
-            let rectWithoutPadding = removePaddingFromRect(
-                element,
-                cachedRects[index]!
-            );
+            let overlaps = overlap($dragTarget.cachedRect, cachedRects[index]);
             let placement = calculatePlacement(
-                rectWithoutPadding,
                 $dragTarget.cachedRect,
+                cachedRects[index],
                 $cache.direction
             );
             if (overlaps) {
@@ -671,8 +651,7 @@
         );
         let overlappedItem = overlapping.find((o) => o.index === midpoint);
         /* Only use 'before' placement at the start of the list. Since we are changing padding,
-     we want to reduce the chance of weird interactions with wrapping.
-     */
+        we want to reduce the chance of weird interactions with wrapping. */
         if (overlappedItem.placement === 'before' && overlappedItem.index > 0) {
             const indexBefore = overlappedItem.index - 1;
             const itemBefore = $cache.items[indexBefore];
@@ -754,6 +733,7 @@
                         cleanupDropZone,
                         canDrop,
                         disabled: () => disabled,
+                        dropPosition,
                     },
                 ];
             }
@@ -784,29 +764,31 @@
         }
     }
 
+    const applyDelta = (target: HoverResult, delta: number) => {
+        return growOrShrinkLayoutInList(
+            cachedRects,
+            target.index,
+            delta,
+            $cache.direction,
+            target.placement,
+            $cache.paddingKeys
+        );
+    };
+
     // Drop preview transition in
     $: {
         if (!!currentlyDraggingOver && !!hoverEnterElementTween) {
             const offset = $hoverEnterElementTween;
-            const lastOffset = pixelStringToNumber(
-                currentlyDraggingOver.element.style[
+            const lastOffset =
+                cachedRects[currentlyDraggingOver.index].offsets[
                     $cache.paddingKeys[currentlyDraggingOver.placement]
-                ]
-            );
+                ];
             currentlyDraggingOver.element.style[
                 $cache.paddingKeys[currentlyDraggingOver.placement]
             ] = `${offset}px`;
             const delta = offset - lastOffset;
-            const offsetPosition =
-                $cache.direction === 'horizontal'
-                    ? { x: delta, y: 0 }
-                    : { x: 0, y: delta };
             if (cachedRects.length >= currentlyDraggingOver.index) {
-                cachedRects = growOrShrinkRectInList(
-                    cachedRects,
-                    currentlyDraggingOver.index,
-                    offsetPosition
-                );
+                cachedRects = applyDelta(currentlyDraggingOver, delta);
             }
         }
     }
@@ -815,16 +797,16 @@
     $: {
         if (previouslyDraggedOver.length > 0 && !!hoverLeaveElementTweens) {
             const sizes = $hoverLeaveElementTweens;
-            const deltas: Array<{ index: number; delta: number }> = [];
-            const previousSizes = previouslyDraggedOver.map((target) => {
-                return pixelStringToNumber(
-                    target.element.style[$cache.paddingKeys[target.placement]]
-                );
-            });
             previouslyDraggedOver = previouslyDraggedOver.map(
                 (target, index) => {
-                    const delta = sizes[index] - previousSizes[index];
-                    deltas.push({ index: target.index, delta });
+                    const lastSize =
+                        cachedRects[target.index].offsets[
+                            $cache.paddingKeys[target.placement]
+                        ];
+                    const delta = sizes[index] - lastSize;
+                    if (cachedRects.length >= target.index) {
+                        cachedRects = applyDelta(target, delta);
+                    }
                     target.element.style[
                         $cache.paddingKeys[target.placement]
                     ] = `${sizes[index]}px`;
@@ -848,19 +830,6 @@
                     new Array(previouslyDraggedOver.length).fill(0)
                 );
             }
-            deltas.forEach(({ index, delta }) => {
-                if (cachedRects.length >= index) {
-                    const offsetPosition =
-                        $cache.direction === 'horizontal'
-                            ? { x: delta, y: 0 }
-                            : { x: 0, y: delta };
-                    cachedRects = growOrShrinkRectInList(
-                        cachedRects,
-                        index,
-                        offsetPosition
-                    );
-                }
-            });
         }
     }
 
@@ -903,7 +872,7 @@
                 $cache.direction === 'horizontal'
                     ? { x: -delta, y: 0 }
                     : { x: 0, y: -delta };
-            cachedRects = translateRectsBy(cachedRects, 0, offsetPosition);
+            cachedRects = translateLayoutsBy(cachedRects, 0, offsetPosition);
         }
         if (dragScrollCurrent === dragScrollTarget) {
             checkScroll();
@@ -1015,6 +984,7 @@
                 cleanupDropZone,
                 canDrop,
                 disabled: () => disabled,
+                dropPosition,
             },
         ];
         mounted = true;
