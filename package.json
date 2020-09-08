@@ -1,6 +1,6 @@
 {
   "name": "svelte-reactive-dnd",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A drag and drop library for Svelte",
   "svelte": "lib/index.js",
   "module": "dist/index.mjs",

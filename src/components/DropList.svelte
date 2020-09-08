@@ -82,11 +82,11 @@
         $dragDropSettings.defaults.enableResizeListeners;
     export let direction: 'horizontal' | 'vertical' =
         $dragDropSettings.defaults.direction;
-    export let allowDrop: (
+    export let shouldAllowDrop: (
         item: Item,
-        sourceDropZone: number
+        sourceIdentifier: Id
     ) => boolean = () => true;
-    export let identifier: Id | undefined;
+    export let identifier: Id | undefined = undefined;
 
     const id = dropTargetId.next();
     const dropGroup: DropGroup | undefined = getContext('reactive-drop-group');
@@ -125,7 +125,9 @@
     $: {
         hierarchyKey = key ?? dropGroup?.key;
         if (!identifier && !!dropGroup && !!key) {
-            throw new Error(`DropList belongs to a DropGroup, but does not provide an identifier`);
+            throw new Error(
+                `DropList belongs to a DropGroup, but does not provide an identifier`
+            );
         }
     }
 
@@ -164,7 +166,7 @@
             hoverEnterElementTween = undefined;
         }
         $dropTargets
-            .filter((target) => target.key === hierarchyKey)
+            .filter((target) => target.key() === hierarchyKey)
             .forEach((target) => target.cleanupDropZone());
         $dragTarget = undefined;
     };
@@ -236,7 +238,7 @@
                                     cachedItem.id !== $dragTarget.item.id
                             ),
                         ],
-                        destinationDropZone: currentDropTarget.dropTarget.id,
+                        destinationIdentifer: currentDropTarget.dropTarget.clientIdentifier(),
                     };
                     if (!!dropGroup && dropGroup.key === hierarchyKey) {
                         dropGroup.onDragOut(
@@ -259,7 +261,10 @@
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await dragTween.set({ x: 0, y: 0 });
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragCancel($dragTarget.item, identifier ?? 'error: identifier not defined');
+                    dropGroup.onDragCancel(
+                        $dragTarget.item,
+                        identifier ?? 'error: identifier not defined'
+                    );
                 }
                 dispatch('dragcancelled', {
                     item: $dragTarget.item,
@@ -354,10 +359,13 @@
                 child.style.display = 'none';
                 active = true;
                 $dropTargets
-                    .filter((target) => target.key === hierarchyKey)
+                    .filter((target) => target.key() === hierarchyKey)
                     .forEach((target) => target.prepareDropZone());
                 if (!!dropGroup && dropGroup.key === hierarchyKey) {
-                    dropGroup.onDragStart($dragTarget.item, identifier ?? 'error: identifier not defined');
+                    dropGroup.onDragStart(
+                        $dragTarget.item,
+                        identifier ?? 'error: identifier not defined'
+                    );
                 }
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await sourceElementTween.set(0);
@@ -414,7 +422,11 @@
             insertedAfter:
                 finalIndex > 0 ? $cache.items[finalIndex - 1] : undefined,
             listSnapshot,
-            sourceDropZone: $dragTarget.controllingDropZoneId,
+            sourceIdentifier: $dropTargets
+                .find(
+                    (target) => target.id === $dragTarget.controllingDropZoneId
+                )!
+                .clientIdentifier(),
         };
         if (!!dropGroup && dropGroup.key === hierarchyKey) {
             dropGroup.onDropIn(
@@ -422,7 +434,7 @@
                 dropInResult.index,
                 dropInResult.insertedAfter,
                 dropInResult.listSnapshot,
-                dropInResult.sourceDropZone,
+                dropInResult.sourceIdentifier,
                 identifier ?? 'error: identifier not defined'
             );
         }
@@ -564,7 +576,7 @@
                 threshold;
             if (dragScrollTarget <= dragScrollCurrent) {
                 dragScrollTween = tweened(dragScrollCurrent, {
-                    duration: $dragDropSettings.globals.animationMs,
+                    duration: 1000,
                 });
                 dragScrollTarget = Math.trunc(
                     dragScrollCurrent +
@@ -702,7 +714,8 @@
                     ...$dropTargets.filter((dt) => dt.id !== id),
                     {
                         id,
-                        key: hierarchyKey,
+                        key: () => hierarchyKey,
+                        clientIdentifier: () => identifier,
                         rect: cachedDropZoneRect,
                         dropElement: dropZone,
                         dropCallback,
@@ -841,7 +854,15 @@
             !disabled &&
             $dragTarget.key === hierarchyKey &&
             capacity - $cache.items.length > 0 &&
-            allowDrop($dragTarget.item, $dragTarget.controllingDropZoneId)
+            shouldAllowDrop(
+                $dragTarget.item,
+                $dropTargets
+                    .find(
+                        (target) =>
+                            target.id === $dragTarget.controllingDropZoneId
+                    )!
+                    .clientIdentifier()
+            )
         );
     };
 
@@ -952,7 +973,8 @@
             ...$dropTargets,
             {
                 id,
-                key: hierarchyKey,
+                key: () => hierarchyKey,
+                clientIdentifier: () => identifier,
                 rect: cachedDropZoneRect,
                 dropElement: dropZone,
                 dropCallback,

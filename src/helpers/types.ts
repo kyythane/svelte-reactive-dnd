@@ -19,7 +19,8 @@ export type Position = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 export type DropTarget = {
     id: number;
-    key?: string;
+    key: () => string;
+    clientIdentifier: () => Id;
     rect: Rect;
     dropElement: HTMLDivElement;
     dropCallback: DropCallback;
