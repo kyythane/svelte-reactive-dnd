@@ -6,8 +6,10 @@ export default {
     argTypes: {
         numItems: { control: 'number' },
         direction: {
-            control: 'inline-radio',
-            options: ['horizontal', 'vertical'],
+            control: {
+                type: 'inline-radio',
+                options: ['horizontal', 'vertical'],
+            },
         },
     },
 };
