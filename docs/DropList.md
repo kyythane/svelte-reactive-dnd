@@ -11,13 +11,14 @@ The only required property is `items`
 
 Required.
 An `array` containing objects that have an `id` property. This `id` can be either a `number` or a `string`.
+`DropList` caches this array while a drag is in progress.
 
 ### - identifier
 
 Optional, unless the `DropList` is part of a `DropGroup`. Either a `number` or a `string`.
 An identifier is some id that has semantic meaning in your system.
-It is not used for anything in `svelte-reactive-dnd`, but will be used whenever the library needs to give you the identity of a `DropList`.
-If it is not provided, then `undefined` will be returned in those cases.
+It is not used for anything in `svelte-reactive-dnd`, but will be returned whenever the library needs to give you the identity of a `DropList`.
+If no `identifier` is provided, then `undefined` will be returned in those cases.
 
 ### - key
 
@@ -41,8 +42,8 @@ If `true` it will prevent any items from being dragged out or dropped in the `Dr
 ### - shouldAllowDrop
 
 Optional.
-A function that takes in an `Item` and a `DropList` `identifier`, and needs to return a `boolean`: `true` to allow the drop, `false` to deny it.
-**This function will be called on mouse move**, so it needs to be cheap to compute.
+A function that takes in an `Item` and an `identifier`, and needs to return a `boolean`: `true` to allow the drop, `false` to deny it.
+**This function will be called on mouse move.**
 There is no `shouldAllowDrag` that should be handled by setting `disabled` on the corresponding `DragHandle` or manually when wiring up the drag events.
 [Example](https://svelte.dev/repl/bed184c9a322404aafd4561058274b04?version=3.24.1)
 
@@ -90,7 +91,7 @@ The `slot` exposed by `DropList` is named `listItem`.
 The slot's `data` property provides the `item`, as well as `isDraggingOver` and `dragEventHandlers`.
 
 The the generated type for `item` is `unknown`, which is a bit of a pain.
-aIt's because of current limitations of the Svelte types.
+AFAICT, it's a current limitations of the Svelte types.
 If you know a work around, let me know!
 
 `isDraggingOver` is a boolean, and is true whenever the dragging item is "in" the same index as the item in this slot.
