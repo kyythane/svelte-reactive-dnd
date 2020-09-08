@@ -65,6 +65,7 @@ This uses [dimension bindings](https://svelte.dev/tutorial/dimensions), which ha
 
 Optional.
 Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`. Default value set in `dragDropSettings`.
+[Horizontal DropList Example](https://svelte.dev/repl/d2e8cde072ca4b4486d56123133eb704?version=3.24.1)
 
 ## Events
 
@@ -88,7 +89,7 @@ The `slot` exposed by `DropList` is named `listItem`.
 The slot's `data` property provides the `item`, as well as `isDraggingOver` and `dragEventHandlers`.
 
 The the generated type for `item` is `unknown`, which is a bit of a pain.
-It's because of current limitations of the Svelte types.
+aIt's because of current limitations of the Svelte types.
 If you know a work around, let me know!
 
 `isDraggingOver` is a boolean, and is true whenever the dragging item is "in" the same index as the item in this slot.

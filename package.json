@@ -23,7 +23,8 @@
     "fix": "npm run fix:lint && npm run fix:markdown",
     "fix:lint": "eslint . --fix && prettier --write ./src/**/*.svelte",
     "fix:markdown": "markdownlint '**/*.md' --fix --ignore node_modules",
-    "prepublishOnly": "npm run check && npm run build"
+    "prepublishOnly": "npm run check && npm run build",
+    "purge:generated": "rm -rf ./dist && rm -rf ./lib"
   },
   "husky": {
     "hooks": {
