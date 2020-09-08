@@ -192,7 +192,7 @@
             if (!!currentDropTarget) {
                 // Ensure we have the latest hoverResult, but don't update it to `undefined` if it was defined.
                 let hoverResult =
-                    currentDropTarget.dropTarget.hoverCallback() ||
+                    currentDropTarget.dropTarget.hoverCallback(false) ||
                     currentDropTarget.hoverResult;
                 $dragging = 'dropping';
                 let offset: { x: number; y: number };
@@ -367,6 +367,9 @@
                         identifier ?? 'error: identifier not defined'
                     );
                 }
+                dispatch('dragstart', {
+                    item: $dragTarget.item,
+                });
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await sourceElementTween.set(0);
                 $dragging = 'dragging';
@@ -594,7 +597,20 @@
         }
     };
 
-    const hoverCallback: HoverCallback = () => {
+    const hoverCallback: HoverCallback = (fireEvent: boolean) => {
+        const hoverResult = computeHoverResult();
+        if (fireEvent) {
+            dispatch('drageenter', {
+            item: $dragTarget.item,
+            rect: $dragTarget.cachedRect,
+            index: hoverResult?.index ?? 0,
+            over: hoverResult?.item,
+        });
+        }
+        return hoverResult;
+    }
+
+    const computeHoverResult: () => HoverResult = () => {
         if ($cache.items.length === 0) {
             return undefined;
         }
@@ -676,9 +692,14 @@
 
     const enterDropZone = () => {
         active = true;
-        dispatch('dropzoneenter', {
+        dispatch('dragenter', {
             item: $dragTarget.item,
             rect: $dragTarget.cachedRect,
+            sourceIdentifer: $dropTargets
+                .find(
+                    (target) => target.id === $dragTarget.controllingDropZoneId
+                )!
+                .clientIdentifier(),
         });
     };
 
@@ -689,7 +710,7 @@
         }
         dragScrollTarget = dragScrollCurrent;
         dragScrollTween = undefined;
-        dispatch('dropzoneleave', {
+        dispatch('dragleave', {
             item: $dragTarget.item,
             rect: $dragTarget.cachedRect,
         });
@@ -882,8 +903,7 @@
             checkScroll();
         }
         if (active) {
-            // TODO: I think this is part of the padding bug, but we need to run the
-            hoverCallback();
+            computeHoverResult();
         }
     };
 
@@ -948,7 +968,7 @@
                     if (!currentDropTarget) {
                         overlapping.target.enterDropZone();
                     }
-                    const hoverResult = overlapping.target.hoverCallback();
+                    const hoverResult = overlapping.target.hoverCallback(true);
                     currentDropTarget = {
                         dropTarget: overlapping.target,
                         hoverResult,

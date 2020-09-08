@@ -14,7 +14,7 @@ export type HoverResult = {
     placement: Placement;
 };
 export type DropCallback = (dragTarget: HoverResult | undefined) => void;
-export type HoverCallback = () => HoverResult | undefined;
+export type HoverCallback = (fireEvent: boolean) => HoverResult | undefined;
 export type Position = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 export type DropTarget = {
@@ -39,8 +39,8 @@ export type DropTargetCache = {
     scrollKey: 'scrollTop' | 'scrollLeft';
     dimensionKey: 'height' | 'width';
     paddingKeys:
-        | { before: 'paddingTop'; after: 'paddingBottom' }
-        | { before: 'paddingLeft'; after: 'paddingRight' };
+    | { before: 'paddingTop'; after: 'paddingBottom' }
+    | { before: 'paddingLeft'; after: 'paddingRight' };
 };
 export type DragTarget = {
     key?: string;

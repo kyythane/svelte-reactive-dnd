@@ -5,6 +5,8 @@ You can do everything the library is capable of with just that, thought `DropGro
 
 ## Properties
 
+The only required property is `items`
+
 ### - items
 
 Required.
@@ -37,20 +39,42 @@ If `true` it will prevent any items from being dragged out or dropped in the `Dr
 
 Optional.
 A function that takes in an `Item` and a `DropList` `identifier`, and needs to return a `boolean`: `true` to allow the drop, `false` to deny it.
+**This function will be called on mouse move**, so it needs to be cheap to compute.
 There is no `shouldAllowDrag` that should be handled by setting `disabled` on the corresponding `DragHandle` or manually when wiring up the drag events.
 
 ### - disableScrollOnDrag
 
+Optional.
 Disables scrolling when an item is dragged to the start or end of a list. Default value set in `dragDropSettings`.
 
 ### - disableDropSpacing
 
+Optional.
 Disables inserting a space where an item is dragged over. Default value set in `dragDropSettings`.
 
 ### - enableResizeListeners
 
+Optional.
 Enables resize listeners on `DropList`s that will update the size of the droppable area when the `DropList` is resized. Default value set in `dragDropSettings`.
+This uses [dimension bindings](https://svelte.dev/tutorial/dimensions), which has some overhead, so it should generally only be enabled for top level items.
 
 ### - direction
 
+Optional.
 Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`. Default value set in `dragDropSettings`.
+
+## Events
+
+### - itemdraggedout
+
+### - dragcancelled
+
+### - itemdroppedin
+
+### - drageenter
+
+### - dragleave
+
+### - dragmove
+
+### - dragstart
