@@ -600,15 +600,15 @@
     const hoverCallback: HoverCallback = (fireEvent: boolean) => {
         const hoverResult = computeHoverResult();
         if (fireEvent) {
-            dispatch('drageenter', {
-            item: $dragTarget.item,
-            rect: $dragTarget.cachedRect,
-            index: hoverResult?.index ?? 0,
-            over: hoverResult?.item,
-        });
+            dispatch('dragmove', {
+                item: $dragTarget.item,
+                rect: $dragTarget.cachedRect,
+                index: hoverResult?.index ?? 0,
+                over: hoverResult?.item,
+            });
         }
         return hoverResult;
-    }
+    };
 
     const computeHoverResult: () => HoverResult = () => {
         if ($cache.items.length === 0) {
@@ -748,6 +748,7 @@
                         getEventHandlers,
                         cleanupDropZone,
                         canDrop,
+                        disabled: () => disabled,
                     },
                 ];
             }
@@ -1006,6 +1007,7 @@
                 getEventHandlers,
                 cleanupDropZone,
                 canDrop,
+                disabled: () => disabled,
             },
         ];
         mounted = true;

@@ -41,7 +41,7 @@
             dropZone.getEventHandlers().handleMouseMove(event);
         }
     }}"
-    class="{disabled ? 'disabled' : 'default'}"
+    class="{!dropZone || dropZone.disabled() || disabled ? 'disabled' : 'default'}"
 >
     <slot />
 </div>

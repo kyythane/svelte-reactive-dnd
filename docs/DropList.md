@@ -23,17 +23,20 @@ If it is not provided, then `undefined` will be returned in those cases.
 
 Optional.
 A `string` used to group `DropList`s together, or to filter a `DropList` from a `DropGroup`.
+[Example](https://svelte.dev/repl/0c97c78817b64d93997bc9f8637956e0?version=3.24.1)
 
 ### - capacity
 
 Optional.
 The maximum `number` of items this `DropList` can hold.
 Prevents items from being dragged in, but will not prevent items from being dragged out.
+[Example](https://svelte.dev/repl/c93a80370f1749199d69a1c38aa06d6e?version=3.24.1)
 
 ### - disabled
 
 Optional.
 If `true` it will prevent any items from being dragged out or dropped in the `DropList`
+[Example](https://svelte.dev/repl/c93a80370f1749199d69a1c38aa06d6e?version=3.24.1)
 
 ### - shouldAllowDrop
 

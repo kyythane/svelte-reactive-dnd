@@ -79,6 +79,8 @@ They are not required. With a little bit of wiring, anything they add can be don
 
 ## API
 
+**WARNING: API IS NOT YET STABLE.** Will stabilize on version 1.0.0.
+
 There are 4 exports from this library:
 
 - [DropList](https://github.com/kyythane/svelte-reactive-dnd/blob/main/docs/DropList.md)

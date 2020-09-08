@@ -32,6 +32,7 @@ export type DropTarget = {
     getEventHandlers: () => DragEventHandlers;
     cleanupDropZone: () => void;
     canDrop: () => boolean;
+    disabled: () => boolean;
 };
 export type DropTargetCache = {
     items: Array<Item>;
