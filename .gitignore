@@ -17,3 +17,4 @@ node_modules/
 lib/
 dist/
 .vscode/spellright.dict
+/storybook-static
