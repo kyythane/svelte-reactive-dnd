@@ -1,4 +1,12 @@
-import type { Rect, HoverResult, Position, Id, Placement } from './types';
+import type {
+    Rect,
+    HoverResult,
+    Position,
+    Id,
+    Placement,
+    DragTarget,
+} from './types';
+import type { Writable } from 'svelte/store';
 
 export function makeDraggableElement(
     originalElement: HTMLDivElement,
@@ -11,14 +19,33 @@ export function makeDraggableElement(
     draggedEl.style.top = `${rect.top}px`;
     draggedEl.style.left = `${rect.left}px`;
     draggedEl.style.zIndex = '9999';
-    draggedEl.style.cursor = 'grabbing';
-    const dragHandle = draggedEl.querySelector(
+    applyCursor(draggedEl, id, 'grabbing');
+    return draggedEl;
+}
+
+function applyCursor(element: HTMLElement, id: Id, cursor: string): void {
+    element.style.cursor = cursor;
+    const dragHandle = element.querySelector(
         `#reactive-dnd-drag-handle-${id}`
     ) as HTMLDivElement;
     if (!!dragHandle) {
-        dragHandle.style.cursor = 'grabbing';
+        dragHandle.style.cursor = cursor;
     }
-    return draggedEl;
+}
+
+export function updateCursor(
+    dragTarget: Writable<DragTarget>,
+    canDrop: boolean,
+    hasDropTarget: boolean
+): void {
+    const cursor = hasDropTarget && !canDrop ? 'not-allowed' : 'grabbing';
+    dragTarget.update((target) => {
+        if (target.cursor !== cursor) {
+            target.cursor = cursor;
+            applyCursor(target.dragElement, target.item.id, cursor);
+        }
+        return target;
+    });
 }
 
 export function overlap(rect1: Rect, rect2: Rect): boolean {

@@ -50,6 +50,7 @@ export type DragTarget = {
     sourceRect: Rect;
     dragElement: HTMLDivElement;
     cachedRect: Rect;
+    cursor: 'grabbing' | 'not-allowed';
 };
 export type DragDropSettings = {
     defaults: {

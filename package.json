@@ -1,6 +1,6 @@
 {
   "name": "svelte-reactive-dnd",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "A drag and drop library for Svelte",
   "svelte": "lib/index.js",
   "module": "dist/index.mjs",
@@ -20,11 +20,11 @@
     "check:type": "tsc --noEmit -p ./tsconfig.json",
     "check:lint": "eslint . && prettier --check ./src/**/*.svelte",
     "check:markdown": "markdownlint '**/*.md' --ignore node_modules",
+    "clean": "rm -rf ./dist && rm -rf ./lib",
     "fix": "npm run fix:lint && npm run fix:markdown",
     "fix:lint": "eslint . --fix && prettier --write ./src/**/*.svelte",
     "fix:markdown": "markdownlint '**/*.md' --fix --ignore node_modules",
-    "prepublishOnly": "npm run check && npm run build",
-    "purge:generated": "rm -rf ./dist && rm -rf ./lib"
+    "prepublishOnly": "npm run check && npm run build"
   },
   "husky": {
     "hooks": {

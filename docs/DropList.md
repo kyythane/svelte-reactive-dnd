@@ -44,6 +44,7 @@ Optional.
 A function that takes in an `Item` and a `DropList` `identifier`, and needs to return a `boolean`: `true` to allow the drop, `false` to deny it.
 **This function will be called on mouse move**, so it needs to be cheap to compute.
 There is no `shouldAllowDrag` that should be handled by setting `disabled` on the corresponding `DragHandle` or manually when wiring up the drag events.
+[Example](https://svelte.dev/repl/bed184c9a322404aafd4561058274b04?version=3.24.1)
 
 ### - disableScrollOnDrag
 

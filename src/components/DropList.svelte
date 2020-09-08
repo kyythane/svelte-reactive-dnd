@@ -46,6 +46,7 @@
         growOrShrinkRectInList,
         translateRectsBy,
         lerp,
+        updateCursor,
     } from '../helpers/utilities';
     import {
         dragging,
@@ -124,8 +125,11 @@
 
     $: {
         hierarchyKey = key ?? dropGroup?.key;
-        if (!identifier && !!dropGroup && !!key) {
-            throw new Error(
+    }
+
+    $: {
+        if (identifier === undefined && !!dropGroup && key === undefined) {
+            console.error(
                 `DropList belongs to a DropGroup, but does not provide an identifier`
             );
         }
@@ -334,6 +338,7 @@
                     dragElement: cloned,
                     sourceRect: containingElement.getBoundingClientRect(),
                     cachedRect: cloned.getBoundingClientRect(),
+                    cursor: 'grabbing',
                 };
                 dragTween = tweened(
                     { x: 0, y: 0 },
@@ -956,6 +961,8 @@
                     overlapping.overlap.overlapY > 0;
 
                 const valid = hasDropTarget && overlapping.target.canDrop();
+
+                updateCursor(dragTarget, valid, hasDropTarget);
 
                 if (valid) {
                     if (
