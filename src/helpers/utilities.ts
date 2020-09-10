@@ -12,8 +12,6 @@ import type {
 } from './types';
 import type { Writable } from 'svelte/store';
 
-const EPSILON = 1.5;
-
 export function createDebugRender(): CanvasRenderingContext2D {
     let canvas = document.getElementsByTagName('canvas')[0];
     if (!!canvas) {
@@ -176,50 +174,6 @@ export function computeHoverResult(
     direction: Direction,
     lastHoverResult: HoverResult | undefined
 ): HoverResult {
-    let hoverResult;
-    const overlapResult = computeInitialHoverResult(
-        dragTarget,
-        items,
-        wrappingElements,
-        layouts,
-        direction
-    );
-    if (!!lastHoverResult) {
-        const collison = computeCollisonResult(
-            dragTarget,
-            items,
-            wrappingElements,
-            layouts,
-            direction
-        );
-        hoverResult = collison ?? lastHoverResult;
-    } else {
-        hoverResult = overlapResult;
-    }
-
-    /* Only use 'before' placement at the start of the list. Since we are changing padding,
-        we want to reduce the chance of weird interactions with wrapping. */
-    if (hoverResult.placement === 'before' && hoverResult.index > 0) {
-        const indexBefore = hoverResult.index - 1;
-        const itemBefore = items[indexBefore];
-        hoverResult = {
-            index: indexBefore,
-            item: itemBefore,
-            element: wrappingElements[(itemBefore.id as unknown) as string],
-            placement: 'after' as Placement,
-        };
-    }
-    return hoverResult;
-}
-
-// The dragTarget has just endered the list, compute the initial hover result
-function computeInitialHoverResult(
-    dragTarget: DragTarget,
-    items: Item[],
-    wrappingElements: { [id: string]: HTMLDivElement },
-    layouts: Layout[],
-    direction: Direction
-): HoverResult {
     if (items.length === 0) {
         return undefined;
     }
@@ -247,13 +201,26 @@ function computeInitialHoverResult(
             placement,
         };
     }
-    const closest = overlapping.reduce((last, next) => {
+    let hoverResult = overlapping.reduce((last, next) => {
         return distance(dragTarget.cachedRect, layouts[next.index], axis) <
             distance(dragTarget.cachedRect, layouts[last.index], axis)
             ? next
             : last;
     });
-    return closest;
+    // TODO: don't change direction if we are already moving out of the way :(
+    if (
+        collides(dragTarget.cachedRect, layouts[hoverResult.index], direction)
+    ) {
+        const placement =
+            hoverResult.item.id === lastHoverResult?.item.id
+                ? lastHoverResult.placement
+                : hoverResult.placement;
+        hoverResult = {
+            ...hoverResult,
+            placement: placement === 'after' ? 'before' : 'after',
+        };
+    }
+    return hoverResult;
 }
 
 function findOverlapping(
@@ -298,52 +265,6 @@ function distance(rect: Rect, layout: Layout, axis: 'x' | 'y') {
     );
 }
 
-function computeCollisonResult(
-    dragTarget: DragTarget,
-    items: Item[],
-    wrappingElements: { [id: string]: HTMLDivElement },
-    layouts: Layout[],
-    direction: Direction
-): HoverResult | undefined {
-    if (items.length === 0) {
-        return undefined;
-    }
-    const overlapping = findOverlapping(
-        dragTarget,
-        items,
-        wrappingElements,
-        layouts,
-        direction
-    );
-    const axis = direction === 'horizontal' ? 'x' : 'y';
-    if (overlapping.length === 0) {
-        const lastLayout = layouts[layouts.length - 1];
-        // Sanity check to make sure we are actually past the end of our list
-        const index =
-            dragTarget.cachedRect[axis] > lastLayout.rect[axis]
-                ? items.length - 1
-                : 0;
-        const item = items[index];
-        const placement: Placement = index === 0 ? 'before' : 'after';
-        return {
-            index,
-            item,
-            element: wrappingElements[(item.id as unknown) as string],
-            placement,
-        };
-    }
-    const collision = overlapping.find((potential) =>
-        collides(dragTarget.cachedRect, layouts[potential.index], direction)
-    );
-    if (!!collision) {
-        return {
-            ...collision,
-            placement: collision.placement === 'after' ? 'before' : 'after',
-        };
-    }
-    return undefined;
-}
-
 function collides(
     dragRect: Rect,
     layout: Layout,
@@ -355,8 +276,9 @@ function collides(
     const dragMidpoint = computeMidpoint(dragRect)[axis];
     const layoutMidpoint = computeMidpoint(layout.rect)[axis];
     const distance = layoutMidpoint - dragMidpoint;
-    // The item is on a boundary.
-    if (Math.abs(Math.abs(distance) - dragSize / 2) < EPSILON) {
+    console.log(distance, dragSize / 2);
+    // The item is colliding.
+    if (Math.abs(distance) <= dragSize / 2) {
         return true;
     }
     return false;
