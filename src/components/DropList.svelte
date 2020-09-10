@@ -43,8 +43,8 @@
         translateLayoutsBy,
         lerp,
         updateCursor,
-        createDebugRender,
-        renderDebugBoundingBoxes,
+      //  createDebugRender,
+     //   renderDebugBoundingBoxes,
         computeHoverResult,
         calculateDropPosition,
     } from '../helpers/utilities';
@@ -135,7 +135,7 @@
         }
     }
 
-    const debugRenderer = createDebugRender();
+   // const debugRenderer = createDebugRender();
 
     const dispatch = createEventDispatcher();
 
@@ -953,9 +953,14 @@
         $dropTargets = $dropTargets.filter((dt) => dt.id !== id);
     });
 
-    $: {
-        renderDebugBoundingBoxes($dragTarget, currentlyDraggingOver, cellLayouts, debugRenderer);
-    }
+    /*$: {
+        renderDebugBoundingBoxes(
+            $dragTarget,
+            currentlyDraggingOver,
+            cellLayouts,
+            debugRenderer
+        );
+    }*/
 </script>
 
 <svelte:window

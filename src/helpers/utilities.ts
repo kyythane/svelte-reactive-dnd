@@ -47,11 +47,11 @@ export function renderDebugBoundingBoxes(
             layout.rect.x - layout.offsets.paddingLeft,
             layout.rect.y - layout.offsets.paddingTop,
             layout.rect.width +
-            layout.offsets.paddingLeft +
-            layout.offsets.paddingRight,
+                layout.offsets.paddingLeft +
+                layout.offsets.paddingRight,
             layout.rect.height +
-            layout.offsets.paddingTop +
-            layout.offsets.paddingBottom
+                layout.offsets.paddingTop +
+                layout.offsets.paddingBottom
         );
         debugRenderer.strokeStyle = '#ff0000';
         debugRenderer.stroke();
