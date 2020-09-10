@@ -35,7 +35,7 @@
     export let maxSize;
     export let seed;
     let rng = seedRandom(seed);
-    console.log(minSize,maxSize ,minSize + rng() * (maxSize - minSize));
+    console.log(minSize, maxSize, minSize + rng() * (maxSize - minSize));
     let items = new Array(numItems)
         .fill(0)
         .map((_, index) => ({ id: index, title: `Item: ${index}` }));

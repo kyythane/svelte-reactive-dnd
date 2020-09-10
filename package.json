@@ -26,7 +26,7 @@
     "fix:lint": "eslint . --fix && prettier --write './**/*.svelte'",
     "fix:markdown": "markdownlint '**/*.md' --fix --ignore node_modules",
     "prepublishOnly": "npm run check && npm run build",
-    "storybook": "start-storybook -p 6006"
+    "storybook": "npm run build:lib && start-storybook -p 6006"
   },
   "husky": {
     "hooks": {

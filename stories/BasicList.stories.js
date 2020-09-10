@@ -1,4 +1,4 @@
-import SingleList from './SingleList.svelte';
+import SingleList from './BasicList.svelte';
 
 export default {
     title: 'Lists/BasicList',

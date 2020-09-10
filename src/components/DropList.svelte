@@ -35,10 +35,7 @@
     import {
         computeMidpoint,
         makeDraggableElement,
-        calculatePlacement,
-        overlap,
         percentOverlap,
-        createLayout,
         removePaddingFromHoverResult,
         updateContainingStyleSize,
         moveRectTo,
@@ -47,6 +44,8 @@
         lerp,
         updateCursor,
         createDebugRender,
+        computeHoverResult,
+        calculateDropPosition,
     } from '../helpers/utilities';
     import {
         dragging,
@@ -68,7 +67,6 @@
         DropGroup,
         HoverCallback,
         HoverResult,
-        Placement,
         Layout,
     } from '../helpers/types';
 
@@ -195,15 +193,7 @@
             return { x: cachedDropZoneRect.x, y: cachedDropZoneRect.y };
         }
         const layout = cachedRects[currentlyDraggingOver.index];
-        const position = { x: layout.rect.x, y: layout.rect.y };
-        if (currentlyDraggingOver.placement === 'after') {
-            if (direction === 'horizontal') {
-                position.x += layout.rect.width;
-            } else {
-                position.y += layout.rect.height;
-            }
-        }
-        return position;
+        return calculateDropPosition(currentlyDraggingOver, layout, direction);
     };
 
     const endDrag = async (event: MouseEvent) => {
@@ -596,7 +586,28 @@
     };
 
     const hoverCallback: HoverCallback = (fireEvent: boolean) => {
-        const hoverResult = computeHoverResult();
+        checkScroll();
+        const hoverResult = computeHoverResult(
+            $dragTarget,
+            $cache.items,
+            wrappingElements,
+            cachedRects,
+            $cache.direction,
+            currentlyDraggingOver
+        );
+        if (!!hoverResult) {
+            if (!currentlyDraggingOver) {
+                startDragOver(hoverResult);
+            } else if (
+                currentlyDraggingOver.item.id !== hoverResult.item.id ||
+                currentlyDraggingOver.placement !== hoverResult.placement
+            ) {
+                startDragOff();
+                startDragOver(hoverResult);
+            }
+        } else if (!!currentlyDraggingOver) {
+            startDragOff();
+        }
         if (fireEvent) {
             dispatch('dragmove', {
                 item: $dragTarget.item,
@@ -606,83 +617,6 @@
             });
         }
         return hoverResult;
-    };
-
-    const computeHoverResult: () => HoverResult = () => {
-        if ($cache.items.length === 0) {
-            return undefined;
-        }
-        checkScroll();
-        let overlapped = false;
-        const overlapping = [];
-        for (let index = 0; index < $cache.items.length; index++) {
-            const cachedItem = $cache.items[index];
-            const element =
-                wrappingElements[(cachedItem.id as unknown) as string];
-            if (
-                index >= cachedRects.length ||
-                cachedRects[index] === undefined
-            ) {
-                cachedRects[index] = createLayout(
-                    element.getBoundingClientRect()
-                );
-            }
-            let overlaps = overlap($dragTarget.cachedRect, cachedRects[index]);
-            let placement = calculatePlacement(
-                $dragTarget.cachedRect,
-                cachedRects[index],
-                $cache.direction
-            );
-            if (overlaps) {
-                overlapping.push({
-                    index,
-                    item: cachedItem,
-                    element,
-                    placement,
-                });
-                overlapped = true;
-            } else if (overlapped) {
-                break;
-            }
-        }
-        // Since cachedItems must be non-empty. If nothing overlaps, we are past the end of the list.
-        if (overlapping.length === 0) {
-            const lastIndex = $cache.items.length - 1;
-            const lastItem = $cache.items[lastIndex];
-            overlapping.push({
-                index: lastIndex,
-                item: lastItem,
-                element: wrappingElements[(lastItem.id as unknown) as string],
-                placement: 'after' as Placement,
-            });
-        }
-        const midpoint = Math.trunc(
-            (overlapping[0].index + overlapping[overlapping.length - 1].index) /
-                2
-        );
-        let overlappedItem = overlapping.find((o) => o.index === midpoint);
-        /* Only use 'before' placement at the start of the list. Since we are changing padding,
-        we want to reduce the chance of weird interactions with wrapping. */
-        if (overlappedItem.placement === 'before' && overlappedItem.index > 0) {
-            const indexBefore = overlappedItem.index - 1;
-            const itemBefore = $cache.items[indexBefore];
-            overlappedItem = {
-                index: indexBefore,
-                item: itemBefore,
-                element: wrappingElements[(itemBefore.id as unknown) as string],
-                placement: 'after' as Placement,
-            };
-        }
-        if (!currentlyDraggingOver) {
-            startDragOver(overlappedItem);
-        } else if (
-            currentlyDraggingOver.item.id !== overlappedItem.item.id ||
-            currentlyDraggingOver.placement !== overlappedItem.placement
-        ) {
-            startDragOff();
-            startDragOver(overlappedItem);
-        }
-        return overlappedItem;
     };
 
     const enterDropZone = () => {
@@ -889,7 +823,14 @@
             checkScroll();
         }
         if (active) {
-            computeHoverResult();
+            computeHoverResult(
+                $dragTarget,
+                $cache.items,
+                wrappingElements,
+                cachedRects,
+                $cache.direction,
+                currentlyDraggingOver
+            );
         }
     };
 
@@ -1005,16 +946,10 @@
         $dropTargets = $dropTargets.filter((dt) => dt.id !== id);
     });
 
-    /*$: {
+    $: {
         debugRenderer.clearRect(0, 0, window.innerWidth, window.innerHeight);
         cachedRects.forEach((layout) => {
             debugRenderer.beginPath();
-            debugRenderer.rect(
-                layout.rect.x,
-                layout.rect.y,
-                layout.rect.width,
-                layout.rect.height
-            );
             debugRenderer.rect(
                 layout.rect.x - layout.offsets.paddingLeft,
                 layout.rect.y - layout.offsets.paddingTop,
@@ -1025,9 +960,43 @@
                     layout.offsets.paddingTop +
                     layout.offsets.paddingBottom
             );
+            debugRenderer.strokeStyle = '#ff0000';
+            debugRenderer.stroke();
+            debugRenderer.beginPath();
+            debugRenderer.rect(
+                layout.rect.x,
+                layout.rect.y,
+                layout.rect.width,
+                layout.rect.height
+            );
+            debugRenderer.strokeStyle = '#0000ff';
             debugRenderer.stroke();
         });
-    }*/
+        if (!!$dragTarget) {
+            debugRenderer.beginPath();
+            debugRenderer.rect(
+                $dragTarget.cachedRect.x,
+                $dragTarget.cachedRect.y,
+                $dragTarget.cachedRect.width,
+                $dragTarget.cachedRect.height
+            );
+            debugRenderer.strokeStyle = '#000000';
+            debugRenderer.stroke();
+            if (!!currentlyDraggingOver) {
+                debugRenderer.beginPath();
+                const overMidpoint = computeMidpoint(
+                    cachedRects[currentlyDraggingOver.index].rect
+                );
+                const draggingMidpoint = computeMidpoint(
+                    $dragTarget.cachedRect
+                );
+                debugRenderer.moveTo(overMidpoint.x, overMidpoint.y);
+                debugRenderer.lineTo(draggingMidpoint.x, draggingMidpoint.y);
+                debugRenderer.strokeStyle = '#00FF00';
+                debugRenderer.stroke();
+            }
+        }
+    }
 </script>
 
 <svelte:window

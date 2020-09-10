@@ -47,8 +47,8 @@ The maximum size of a scroll sensor. Defaults to 150.
 
 ### - minDragScrollSpeed
 
-The minimum speed the list will scroll in pixels per second. Defaults to 375.
+The minimum speed the list will scroll in pixels per second. Defaults to 275.
 
 ### - maxDragScrollSpeed
 
-The maximum speed the list will scroll in pixels per second. Defaults to 875.
+The maximum speed the list will scroll in pixels per second. Defaults to 625.

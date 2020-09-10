@@ -8,10 +8,13 @@ import type {
     Layout,
     PaddingMap,
     Direction,
+    Item,
 } from './types';
 import type { Writable } from 'svelte/store';
 
-export function createDebugRender() {
+const EPSILON = 1.5;
+
+export function createDebugRender(): CanvasRenderingContext2D {
     let canvas = document.getElementsByTagName('canvas')[0];
     if (!!canvas) {
         return canvas.getContext('2d');
@@ -73,34 +76,26 @@ export function updateCursor(
     });
 }
 
-export function overlap(rect1: Rect, toCompare: Rect | Layout): boolean {
-    if ('rect' in toCompare) {
-        const rect2 = {
-            x: toCompare.rect.x - toCompare.offsets.paddingLeft,
-            y: toCompare.rect.y - toCompare.offsets.paddingTop,
-            width:
-                rect1.width +
-                toCompare.offsets.paddingLeft +
-                toCompare.offsets.paddingRight,
-            height:
-                rect1.height +
-                toCompare.offsets.paddingTop +
-                toCompare.offsets.paddingBottom,
-        };
-        return !(
-            rect1.x + rect1.width < rect2.x ||
-            rect1.y + rect1.height < rect2.y ||
-            rect2.x + rect2.width < rect1.x ||
-            rect2.y + rect2.height < rect1.y
-        );
+export function calculateDropPosition(
+    hoverResult: HoverResult,
+    layout: Layout,
+    direction: Direction
+): Position {
+    const position = { x: layout.rect.x, y: layout.rect.y };
+    if (hoverResult.placement === 'after') {
+        if (direction === 'horizontal') {
+            position.x += layout.rect.width;
+        } else {
+            position.y += layout.rect.height;
+        }
     } else {
-        return !(
-            rect1.x + rect1.width < toCompare.x ||
-            rect1.y + rect1.height < toCompare.y ||
-            toCompare.x + toCompare.width < rect1.x ||
-            toCompare.y + toCompare.height < rect1.y
-        );
+        if (direction === 'horizontal') {
+            position.x -= layout.offsets.paddingLeft;
+        } else {
+            position.y += layout.offsets.paddingTop;
+        }
     }
+    return position;
 }
 
 export function percentOverlap(
@@ -121,7 +116,7 @@ export function computeMidpoint(rect: Rect): Position {
     return { x: rect.width / 2 + rect.x, y: rect.height / 2 + rect.y };
 }
 
-export function createLayout({ x, y, width, height }: Rect): Layout {
+function createLayout({ x, y, width, height }: Rect): Layout {
     return {
         rect: { x, y, width, height },
         offsets: {
@@ -130,7 +125,6 @@ export function createLayout({ x, y, width, height }: Rect): Layout {
             paddingLeft: 0,
             paddingRight: 0,
         },
-        target: { x, y },
     };
 }
 
@@ -153,33 +147,219 @@ export function updateContainingStyleSize(
     }
 }
 
-/* TODO: Need to decouple placement and collision. 
-    #1, #9, #11
-    1) figure out collisions with all overlapped items, and determine their displacement. Update targets if they change direction.
-    2) compute any collapses
-    3) figure out where in the displaced list the item resides. Probably the midpoint of the displaced list?
-*/
+function overlap(rect1: Rect, layout: Layout): boolean {
+    const rect2 = {
+        x: layout.rect.x - layout.offsets.paddingLeft,
+        y: layout.rect.y - layout.offsets.paddingTop,
+        width:
+            rect1.width +
+            layout.offsets.paddingLeft +
+            layout.offsets.paddingRight,
+        height:
+            rect1.height +
+            layout.offsets.paddingTop +
+            layout.offsets.paddingBottom,
+    };
+    return !(
+        rect1.x + rect1.width < rect2.x ||
+        rect1.y + rect1.height < rect2.y ||
+        rect2.x + rect2.width < rect1.x ||
+        rect2.y + rect2.height < rect1.y
+    );
+}
 
-export function computeListDisplacement(
+export function computeHoverResult(
+    dragTarget: DragTarget,
+    items: Item[],
+    wrappingElements: { [id: string]: HTMLDivElement },
+    layouts: Layout[],
+    direction: Direction,
+    lastHoverResult: HoverResult | undefined
+): HoverResult {
+    let hoverResult;
+    const overlapResult = computeInitialHoverResult(
+        dragTarget,
+        items,
+        wrappingElements,
+        layouts,
+        direction
+    );
+    if (!!lastHoverResult) {
+        const collison = computeCollisonResult(
+            dragTarget,
+            items,
+            wrappingElements,
+            layouts,
+            direction
+        );
+        hoverResult = collison ?? lastHoverResult;
+    } else {
+        hoverResult = overlapResult;
+    }
+
+    /* Only use 'before' placement at the start of the list. Since we are changing padding,
+        we want to reduce the chance of weird interactions with wrapping. */
+    if (hoverResult.placement === 'before' && hoverResult.index > 0) {
+        const indexBefore = hoverResult.index - 1;
+        const itemBefore = items[indexBefore];
+        hoverResult = {
+            index: indexBefore,
+            item: itemBefore,
+            element: wrappingElements[(itemBefore.id as unknown) as string],
+            placement: 'after' as Placement,
+        };
+    }
+    return hoverResult;
+}
+
+// The dragTarget has just endered the list, compute the initial hover result
+function computeInitialHoverResult(
+    dragTarget: DragTarget,
+    items: Item[],
+    wrappingElements: { [id: string]: HTMLDivElement },
+    layouts: Layout[],
+    direction: Direction
+): HoverResult {
+    if (items.length === 0) {
+        return undefined;
+    }
+    const overlapping = findOverlapping(
+        dragTarget,
+        items,
+        wrappingElements,
+        layouts,
+        direction
+    );
+    const axis = direction === 'horizontal' ? 'x' : 'y';
+    if (overlapping.length === 0) {
+        const lastLayout = layouts[layouts.length - 1];
+        // Sanity check to make sure we are actually past the end of our list
+        const index =
+            dragTarget.cachedRect[axis] > lastLayout.rect[axis]
+                ? items.length - 1
+                : 0;
+        const item = items[index];
+        const placement: Placement = index === 0 ? 'before' : 'after';
+        return {
+            index,
+            item,
+            element: wrappingElements[(item.id as unknown) as string],
+            placement,
+        };
+    }
+    const closest = overlapping.reduce((last, next) => {
+        return distance(dragTarget.cachedRect, layouts[next.index], axis) <
+            distance(dragTarget.cachedRect, layouts[last.index], axis)
+            ? next
+            : last;
+    });
+    return closest;
+}
+
+function findOverlapping(
+    dragTarget: DragTarget,
+    items: Item[],
+    wrappingElements: { [id: string]: HTMLDivElement },
+    layouts: Layout[],
+    direction: Direction
+) {
+    let overlapped = false;
+    const overlapping = [];
+    for (let index = 0; index < items.length; index++) {
+        const cachedItem = items[index];
+        const element = wrappingElements[(cachedItem.id as unknown) as string];
+        if (index >= layouts.length || layouts[index] === undefined) {
+            layouts[index] = createLayout(element.getBoundingClientRect());
+        }
+        const overlaps = overlap(dragTarget.cachedRect, layouts[index]);
+        const placement = calculatePlacement(
+            dragTarget.cachedRect,
+            layouts[index],
+            direction
+        );
+        if (overlaps) {
+            overlapping.push({
+                index,
+                item: cachedItem,
+                element,
+                placement,
+            });
+            overlapped = true;
+        } else if (overlapped) {
+            break;
+        }
+    }
+    return overlapping;
+}
+
+function distance(rect: Rect, layout: Layout, axis: 'x' | 'y') {
+    return Math.abs(
+        computeMidpoint(layout.rect)[axis] - computeMidpoint(rect)[axis]
+    );
+}
+
+function computeCollisonResult(
+    dragTarget: DragTarget,
+    items: Item[],
+    wrappingElements: { [id: string]: HTMLDivElement },
+    layouts: Layout[],
+    direction: Direction
+): HoverResult | undefined {
+    if (items.length === 0) {
+        return undefined;
+    }
+    const overlapping = findOverlapping(
+        dragTarget,
+        items,
+        wrappingElements,
+        layouts,
+        direction
+    );
+    const axis = direction === 'horizontal' ? 'x' : 'y';
+    if (overlapping.length === 0) {
+        const lastLayout = layouts[layouts.length - 1];
+        // Sanity check to make sure we are actually past the end of our list
+        const index =
+            dragTarget.cachedRect[axis] > lastLayout.rect[axis]
+                ? items.length - 1
+                : 0;
+        const item = items[index];
+        const placement: Placement = index === 0 ? 'before' : 'after';
+        return {
+            index,
+            item,
+            element: wrappingElements[(item.id as unknown) as string],
+            placement,
+        };
+    }
+    const collision = overlapping.find((potential) =>
+        collides(dragTarget.cachedRect, layouts[potential.index], direction)
+    );
+    if (!!collision) {
+        return {
+            ...collision,
+            placement: collision.placement === 'after' ? 'before' : 'after',
+        };
+    }
+    return undefined;
+}
+
+function collides(
     dragRect: Rect,
-    overlappedLayouts: Array<Layout>,
+    layout: Layout,
     direction: 'horizontal' | 'vertical'
-): Array<Layout> {
+): boolean {
     const axis = direction === 'horizontal' ? 'x' : 'y';
     const dragSize =
         direction === 'horizontal' ? dragRect.width : dragRect.height;
     const dragMidpoint = computeMidpoint(dragRect)[axis];
-    const targets = overlappedLayouts.map((layout) => {
-        const layoutMidpoint = computeMidpoint(layout.rect)[axis];
-        const currentTarget = layout.target[axis];
-        const distance = layoutMidpoint - dragMidpoint;
-        if (Math.abs(distance) > dragSize / 2) {
-            // TODO: #9 how to check for collapse
-            return currentTarget;
-        }
-        const offset = -1 * Math.sign(distance) * dragSize + layoutMidpoint;
-    });
-    throw Error('not implemented');
+    const layoutMidpoint = computeMidpoint(layout.rect)[axis];
+    const distance = layoutMidpoint - dragMidpoint;
+    // The item is on a boundary.
+    if (Math.abs(Math.abs(distance) - dragSize / 2) < EPSILON) {
+        return true;
+    }
+    return false;
 }
 
 export function calculatePlacement(
@@ -218,7 +398,7 @@ export function growOrShrinkLayoutInList(
 }
 
 function resizeLayout(
-    { rect: { x, y, width, height }, offsets, target }: Layout,
+    { rect: { x, y, width, height }, offsets }: Layout,
     delta: number,
     direction: Direction,
     placement: Placement,
@@ -227,12 +407,12 @@ function resizeLayout(
     offsets[paddingMap[placement]] += delta;
     if (placement === 'before') {
         if (direction === 'horizontal') {
-            x -= delta;
+            x += delta;
         } else {
-            y -= delta;
+            y += delta;
         }
     }
-    return { rect: { x, y, width, height }, offsets, target };
+    return { rect: { x, y, width, height }, offsets };
 }
 
 export function translateLayoutsBy(
@@ -248,7 +428,7 @@ export function translateLayoutsBy(
 }
 
 function translateLayoutBy(
-    { rect: { x, y, width, height }, offsets, target }: Layout,
+    { rect: { x, y, width, height }, offsets }: Layout,
     offset: Position
 ): Layout {
     const rect = {
@@ -257,7 +437,7 @@ function translateLayoutBy(
         width,
         height,
     };
-    return { rect, offsets, target };
+    return { rect, offsets };
 }
 
 export function moveRectTo({ width, height }: Rect, { x, y }: Position): Rect {
