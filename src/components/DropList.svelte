@@ -46,6 +46,7 @@
         translateLayoutsBy,
         lerp,
         updateCursor,
+        createDebugRender,
     } from '../helpers/utilities';
     import {
         dragging,
@@ -135,6 +136,8 @@
         }
     }
 
+    const debugRenderer = createDebugRender();
+
     const dispatch = createEventDispatcher();
 
     const moveDraggable = (event: MouseEvent) => {
@@ -188,11 +191,19 @@
     };
 
     const dropPosition = () => {
-        if (!!currentlyDraggingOver) {
+        if (!currentlyDraggingOver) {
             return { x: cachedDropZoneRect.x, y: cachedDropZoneRect.y };
         }
         const layout = cachedRects[currentlyDraggingOver.index];
-        return { x: layout.rect.x, y: layout.rect.y };
+        const position = { x: layout.rect.x, y: layout.rect.y };
+        if (currentlyDraggingOver.placement === 'after') {
+            if (direction === 'horizontal') {
+                position.x += layout.rect.width;
+            } else {
+                position.y += layout.rect.height;
+            }
+        }
+        return position;
     };
 
     const endDrag = async (event: MouseEvent) => {
@@ -993,6 +1004,30 @@
     onDestroy(() => {
         $dropTargets = $dropTargets.filter((dt) => dt.id !== id);
     });
+
+    /*$: {
+        debugRenderer.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        cachedRects.forEach((layout) => {
+            debugRenderer.beginPath();
+            debugRenderer.rect(
+                layout.rect.x,
+                layout.rect.y,
+                layout.rect.width,
+                layout.rect.height
+            );
+            debugRenderer.rect(
+                layout.rect.x - layout.offsets.paddingLeft,
+                layout.rect.y - layout.offsets.paddingTop,
+                layout.rect.width +
+                    layout.offsets.paddingLeft +
+                    layout.offsets.paddingRight,
+                layout.rect.height +
+                    layout.offsets.paddingTop +
+                    layout.offsets.paddingBottom
+            );
+            debugRenderer.stroke();
+        });
+    }*/
 </script>
 
 <svelte:window

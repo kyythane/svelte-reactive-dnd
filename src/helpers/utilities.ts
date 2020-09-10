@@ -11,6 +11,28 @@ import type {
 } from './types';
 import type { Writable } from 'svelte/store';
 
+export function createDebugRender() {
+    let canvas = document.getElementsByTagName('canvas')[0];
+    if (!!canvas) {
+        return canvas.getContext('2d');
+    }
+    canvas = document.createElement('canvas'); //Create a canvas element
+    //Set canvas width/height
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    //Set canvas drawing area width/height
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    //Position canvas
+    canvas.style.position = 'absolute';
+    canvas.style.left = '0px';
+    canvas.style.top = '0px';
+    canvas.style.zIndex = '100000';
+    canvas.style.pointerEvents = 'none'; //Make sure you can click 'through' the canvas
+    document.body.appendChild(canvas); //Append canvas to body element
+    return canvas.getContext('2d');
+}
+
 export function makeDraggableElement(
     originalElement: HTMLDivElement,
     id: Id
@@ -99,15 +121,16 @@ export function computeMidpoint(rect: Rect): Position {
     return { x: rect.width / 2 + rect.x, y: rect.height / 2 + rect.y };
 }
 
-export function createLayout(rect: Rect): Layout {
+export function createLayout({ x, y, width, height }: Rect): Layout {
     return {
-        rect,
+        rect: { x, y, width, height },
         offsets: {
             paddingTop: 0,
             paddingBottom: 0,
             paddingLeft: 0,
             paddingRight: 0,
         },
+        target: { x, y },
     };
 }
 
@@ -128,6 +151,35 @@ export function updateContainingStyleSize(
     } else {
         containingElement.style.height = `${amount}px`;
     }
+}
+
+/* TODO: Need to decouple placement and collision. 
+    #1, #9, #11
+    1) figure out collisions with all overlapped items, and determine their displacement. Update targets if they change direction.
+    2) compute any collapses
+    3) figure out where in the displaced list the item resides. Probably the midpoint of the displaced list?
+*/
+
+export function computeListDisplacement(
+    dragRect: Rect,
+    overlappedLayouts: Array<Layout>,
+    direction: 'horizontal' | 'vertical'
+): Array<Layout> {
+    const axis = direction === 'horizontal' ? 'x' : 'y';
+    const dragSize =
+        direction === 'horizontal' ? dragRect.width : dragRect.height;
+    const dragMidpoint = computeMidpoint(dragRect)[axis];
+    const targets = overlappedLayouts.map((layout) => {
+        const layoutMidpoint = computeMidpoint(layout.rect)[axis];
+        const currentTarget = layout.target[axis];
+        const distance = layoutMidpoint - dragMidpoint;
+        if (Math.abs(distance) > dragSize / 2) {
+            // TODO: #9 how to check for collapse
+            return currentTarget;
+        }
+        const offset = -1 * Math.sign(distance) * dragSize + layoutMidpoint;
+    });
+    throw Error('not implemented');
 }
 
 export function calculatePlacement(
@@ -166,23 +218,21 @@ export function growOrShrinkLayoutInList(
 }
 
 function resizeLayout(
-    layout: Layout,
+    { rect: { x, y, width, height }, offsets, target }: Layout,
     delta: number,
     direction: Direction,
     placement: Placement,
     paddingMap: PaddingMap
 ): Layout {
-    const offsets = { ...layout.offsets };
-    const rect = { ...layout.rect };
     offsets[paddingMap[placement]] += delta;
     if (placement === 'before') {
         if (direction === 'horizontal') {
-            rect.x += delta;
+            x -= delta;
         } else {
-            rect.y += delta;
+            y -= delta;
         }
     }
-    return { rect, offsets };
+    return { rect: { x, y, width, height }, offsets, target };
 }
 
 export function translateLayoutsBy(
@@ -198,7 +248,7 @@ export function translateLayoutsBy(
 }
 
 function translateLayoutBy(
-    { rect: { x, y, width, height }, offsets }: Layout,
+    { rect: { x, y, width, height }, offsets, target }: Layout,
     offset: Position
 ): Layout {
     const rect = {
@@ -207,7 +257,7 @@ function translateLayoutBy(
         width,
         height,
     };
-    return { rect, offsets: offsets };
+    return { rect, offsets, target };
 }
 
 export function moveRectTo({ width, height }: Rect, { x, y }: Position): Rect {

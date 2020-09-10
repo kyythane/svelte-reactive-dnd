@@ -25,6 +25,7 @@ export type Layout = {
         paddingLeft: number;
         paddingRight: number;
     };
+    target: Position;
 };
 export type PaddingMap =
     | { before: 'paddingTop'; after: 'paddingBottom' }

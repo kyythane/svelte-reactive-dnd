@@ -1,8 +1,8 @@
-import HorizontalList from './SingleList.svelte';
+import SingleList from './SingleList.svelte';
 
 export default {
-    title: 'Lists/SingleList',
-    component: HorizontalList,
+    title: 'Lists/BasicList',
+    component: SingleList,
     argTypes: {
         numItems: { control: 'number' },
         direction: {
@@ -15,7 +15,7 @@ export default {
 };
 
 const Template = ({ ...args }) => ({
-    Component: HorizontalList,
+    Component: SingleList,
     props: args,
 });
 
