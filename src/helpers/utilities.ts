@@ -34,6 +34,61 @@ export function createDebugRender(): CanvasRenderingContext2D {
     return canvas.getContext('2d');
 }
 
+export function renderDebugBoundingBoxes(
+    dragTarget: DragTarget,
+    currentlyDraggingOver: HoverResult,
+    layouts: Layout[],
+    debugRenderer: CanvasRenderingContext2D
+): void {
+    debugRenderer.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    layouts.forEach((layout) => {
+        debugRenderer.beginPath();
+        debugRenderer.rect(
+            layout.rect.x - layout.offsets.paddingLeft,
+            layout.rect.y - layout.offsets.paddingTop,
+            layout.rect.width +
+            layout.offsets.paddingLeft +
+            layout.offsets.paddingRight,
+            layout.rect.height +
+            layout.offsets.paddingTop +
+            layout.offsets.paddingBottom
+        );
+        debugRenderer.strokeStyle = '#ff0000';
+        debugRenderer.stroke();
+        debugRenderer.beginPath();
+        debugRenderer.rect(
+            layout.rect.x,
+            layout.rect.y,
+            layout.rect.width,
+            layout.rect.height
+        );
+        debugRenderer.strokeStyle = '#0000ff';
+        debugRenderer.stroke();
+    });
+    if (!!dragTarget) {
+        debugRenderer.beginPath();
+        debugRenderer.rect(
+            dragTarget.cachedRect.x,
+            dragTarget.cachedRect.y,
+            dragTarget.cachedRect.width,
+            dragTarget.cachedRect.height
+        );
+        debugRenderer.strokeStyle = '#000000';
+        debugRenderer.stroke();
+        if (!!currentlyDraggingOver) {
+            debugRenderer.beginPath();
+            const overMidpoint = computeMidpoint(
+                layouts[currentlyDraggingOver.index].rect
+            );
+            const draggingMidpoint = computeMidpoint(dragTarget.cachedRect);
+            debugRenderer.moveTo(overMidpoint.x, overMidpoint.y);
+            debugRenderer.lineTo(draggingMidpoint.x, draggingMidpoint.y);
+            debugRenderer.strokeStyle = '#00FF00';
+            debugRenderer.stroke();
+        }
+    }
+}
+
 export function makeDraggableElement(
     originalElement: HTMLDivElement,
     id: Id
@@ -90,7 +145,7 @@ export function calculateDropPosition(
         if (direction === 'horizontal') {
             position.x -= layout.offsets.paddingLeft;
         } else {
-            position.y += layout.offsets.paddingTop;
+            position.y -= layout.offsets.paddingTop;
         }
     }
     return position;
@@ -150,11 +205,11 @@ function overlap(rect1: Rect, layout: Layout): boolean {
         x: layout.rect.x - layout.offsets.paddingLeft,
         y: layout.rect.y - layout.offsets.paddingTop,
         width:
-            rect1.width +
+            layout.rect.width +
             layout.offsets.paddingLeft +
             layout.offsets.paddingRight,
         height:
-            rect1.height +
+            layout.rect.height +
             layout.offsets.paddingTop +
             layout.offsets.paddingBottom,
     };
@@ -201,24 +256,27 @@ export function computeHoverResult(
             placement,
         };
     }
-    let hoverResult = overlapping.reduce((last, next) => {
+    const hoverResult = overlapping.reduce((last, next) => {
         return distance(dragTarget.cachedRect, layouts[next.index], axis) <
             distance(dragTarget.cachedRect, layouts[last.index], axis)
             ? next
             : last;
     });
-    // TODO: don't change direction if we are already moving out of the way :(
-    if (
-        collides(dragTarget.cachedRect, layouts[hoverResult.index], direction)
-    ) {
-        const placement =
-            hoverResult.item.id === lastHoverResult?.item.id
-                ? lastHoverResult.placement
-                : hoverResult.placement;
-        hoverResult = {
-            ...hoverResult,
-            placement: placement === 'after' ? 'before' : 'after',
-        };
+    const collisionPlacement = collides(
+        dragTarget,
+        layouts[hoverResult.index],
+        direction,
+        hoverResult.placement
+    );
+    if (collisionPlacement === 'transition') {
+        if (!!lastHoverResult) {
+            hoverResult.placement = lastHoverResult.placement;
+        } else {
+            hoverResult.placement =
+                hoverResult.placement === 'before' ? 'after' : 'before';
+        }
+    } else {
+        hoverResult.placement = collisionPlacement;
     }
     return hoverResult;
 }
@@ -231,7 +289,7 @@ function findOverlapping(
     direction: Direction
 ) {
     let overlapped = false;
-    const overlapping = [];
+    const overlapping: HoverResult[] = [];
     for (let index = 0; index < items.length; index++) {
         const cachedItem = items[index];
         const element = wrappingElements[(cachedItem.id as unknown) as string];
@@ -266,22 +324,31 @@ function distance(rect: Rect, layout: Layout, axis: 'x' | 'y') {
 }
 
 function collides(
-    dragRect: Rect,
+    dragTarget: DragTarget,
     layout: Layout,
-    direction: 'horizontal' | 'vertical'
-): boolean {
+    direction: 'horizontal' | 'vertical',
+    placement: Placement
+): Placement | 'transition' {
+    const cachedRect = dragTarget.cachedRect;
     const axis = direction === 'horizontal' ? 'x' : 'y';
     const dragSize =
-        direction === 'horizontal' ? dragRect.width : dragRect.height;
-    const dragMidpoint = computeMidpoint(dragRect)[axis];
+        direction === 'horizontal' ? cachedRect.width : cachedRect.height;
+    const dragMidpoint = computeMidpoint(cachedRect)[axis];
+    const lastMidpoint =
+        dragMidpoint + (dragTarget.lastPosition[axis] - cachedRect[axis]);
     const layoutMidpoint = computeMidpoint(layout.rect)[axis];
     const distance = layoutMidpoint - dragMidpoint;
-    console.log(distance, dragSize / 2);
-    // The item is colliding.
-    if (Math.abs(distance) <= dragSize / 2) {
-        return true;
+    const lastDistance = layoutMidpoint - lastMidpoint;
+    // outside to inside => collision
+    if (
+        Math.abs(distance) <= dragSize / 2 &&
+        Math.abs(lastDistance) > dragSize / 2
+    ) {
+        return placement === 'before' ? 'after' : 'before';
+    } else if (Math.abs(distance) <= dragSize / 2) {
+        return 'transition';
     }
-    return false;
+    return placement;
 }
 
 export function calculatePlacement(
@@ -289,8 +356,8 @@ export function calculatePlacement(
     layout: Layout,
     direction: 'horizontal' | 'vertical'
 ): Placement {
-    const key = direction === 'horizontal' ? 'x' : 'y';
-    return computeMidpoint(dragRect)[key] < computeMidpoint(layout.rect)[key]
+    const axis = direction === 'horizontal' ? 'x' : 'y';
+    return computeMidpoint(dragRect)[axis] < computeMidpoint(layout.rect)[axis]
         ? 'before'
         : 'after';
 }

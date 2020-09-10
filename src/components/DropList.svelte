@@ -44,6 +44,7 @@
         lerp,
         updateCursor,
         createDebugRender,
+        renderDebugBoundingBoxes,
         computeHoverResult,
         calculateDropPosition,
     } from '../helpers/utilities';
@@ -95,7 +96,7 @@
         direction,
     });
 
-    let cachedRects: Array<Layout | undefined> = [];
+    let cellLayouts: Array<Layout | undefined> = [];
     let cachedDropZoneRect: Rect;
     let cachedDisplay: string | undefined;
     let wrappingElements: { [id: string]: HTMLDivElement } = {};
@@ -180,7 +181,7 @@
         if (!!currentlyDraggingOver) {
             startDragOff();
         }
-        cachedRects = [];
+        cellLayouts = [];
         draggableDragStart = undefined;
         cachedDisplay = undefined;
         currentDropTarget = undefined;
@@ -192,7 +193,7 @@
         if (!currentlyDraggingOver) {
             return { x: cachedDropZoneRect.x, y: cachedDropZoneRect.y };
         }
-        const layout = cachedRects[currentlyDraggingOver.index];
+        const layout = cellLayouts[currentlyDraggingOver.index];
         return calculateDropPosition(currentlyDraggingOver, layout, direction);
     };
 
@@ -312,6 +313,7 @@
                     potentiallDraggedId
                 );
                 document.body.append(cloned);
+                const cachedRect = cloned.getBoundingClientRect();
                 $dragTarget = {
                     item: $cache.items.find(
                         (c) => c.id === potentiallDraggedId
@@ -320,7 +322,8 @@
                     controllingDropZoneId: id,
                     dragElement: cloned,
                     sourceRect: containingElement.getBoundingClientRect(),
-                    cachedRect: cloned.getBoundingClientRect(),
+                    cachedRect,
+                    lastPosition: { x: cachedRect.x, y: cachedRect.y },
                     cursor: 'grabbing',
                 };
                 dragTween = tweened(
@@ -361,7 +364,7 @@
                 // Tweened .set returns a promise that resolves, but our types don't show that
                 await sourceElementTween.set(0);
                 $dragging = 'dragging';
-                cachedRects = [];
+                cellLayouts = [];
             }
         }
     };
@@ -591,7 +594,7 @@
             $dragTarget,
             $cache.items,
             wrappingElements,
-            cachedRects,
+            cellLayouts,
             $cache.direction,
             currentlyDraggingOver
         );
@@ -711,7 +714,7 @@
 
     const applyDelta = (target: HoverResult, delta: number) => {
         return growOrShrinkLayoutInList(
-            cachedRects,
+            cellLayouts,
             target.index,
             delta,
             $cache.direction,
@@ -725,15 +728,15 @@
         if (!!currentlyDraggingOver && !!hoverEnterElementTween) {
             const offset = $hoverEnterElementTween;
             const lastOffset =
-                cachedRects[currentlyDraggingOver.index].offsets[
+                cellLayouts[currentlyDraggingOver.index].offsets[
                     $cache.paddingKeys[currentlyDraggingOver.placement]
                 ];
             currentlyDraggingOver.element.style[
                 $cache.paddingKeys[currentlyDraggingOver.placement]
             ] = `${offset}px`;
             const delta = offset - lastOffset;
-            if (cachedRects.length >= currentlyDraggingOver.index) {
-                cachedRects = applyDelta(currentlyDraggingOver, delta);
+            if (cellLayouts.length >= currentlyDraggingOver.index) {
+                cellLayouts = applyDelta(currentlyDraggingOver, delta);
             }
         }
     }
@@ -745,12 +748,12 @@
             previouslyDraggedOver = previouslyDraggedOver.map(
                 (target, index) => {
                     const lastSize =
-                        cachedRects[target.index].offsets[
+                        cellLayouts[target.index].offsets[
                             $cache.paddingKeys[target.placement]
                         ];
                     const delta = sizes[index] - lastSize;
-                    if (cachedRects.length >= target.index) {
-                        cachedRects = applyDelta(target, delta);
+                    if (cellLayouts.length >= target.index) {
+                        cellLayouts = applyDelta(target, delta);
                     }
                     target.element.style[
                         $cache.paddingKeys[target.placement]
@@ -817,7 +820,7 @@
                 $cache.direction === 'horizontal'
                     ? { x: -delta, y: 0 }
                     : { x: 0, y: -delta };
-            cachedRects = translateLayoutsBy(cachedRects, 0, offsetPosition);
+            cellLayouts = translateLayoutsBy(cellLayouts, 0, offsetPosition);
         }
         if (dragScrollCurrent === dragScrollTarget) {
             checkScroll();
@@ -827,7 +830,7 @@
                 $dragTarget,
                 $cache.items,
                 wrappingElements,
-                cachedRects,
+                cellLayouts,
                 $cache.direction,
                 currentlyDraggingOver
             );
@@ -850,6 +853,10 @@
                 dragTarget.update((target) => {
                     const dragOffset = $dragTween;
                     target.dragElement.style.transform = `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`;
+                    target.lastPosition = {
+                        x: target.cachedRect.x,
+                        y: target.cachedRect.y,
+                    };
                     target.cachedRect = moveRectTo(target.cachedRect, {
                         x: dragOffset.x + target.sourceRect.x,
                         y: dragOffset.y + target.sourceRect.y,
@@ -947,55 +954,7 @@
     });
 
     $: {
-        debugRenderer.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        cachedRects.forEach((layout) => {
-            debugRenderer.beginPath();
-            debugRenderer.rect(
-                layout.rect.x - layout.offsets.paddingLeft,
-                layout.rect.y - layout.offsets.paddingTop,
-                layout.rect.width +
-                    layout.offsets.paddingLeft +
-                    layout.offsets.paddingRight,
-                layout.rect.height +
-                    layout.offsets.paddingTop +
-                    layout.offsets.paddingBottom
-            );
-            debugRenderer.strokeStyle = '#ff0000';
-            debugRenderer.stroke();
-            debugRenderer.beginPath();
-            debugRenderer.rect(
-                layout.rect.x,
-                layout.rect.y,
-                layout.rect.width,
-                layout.rect.height
-            );
-            debugRenderer.strokeStyle = '#0000ff';
-            debugRenderer.stroke();
-        });
-        if (!!$dragTarget) {
-            debugRenderer.beginPath();
-            debugRenderer.rect(
-                $dragTarget.cachedRect.x,
-                $dragTarget.cachedRect.y,
-                $dragTarget.cachedRect.width,
-                $dragTarget.cachedRect.height
-            );
-            debugRenderer.strokeStyle = '#000000';
-            debugRenderer.stroke();
-            if (!!currentlyDraggingOver) {
-                debugRenderer.beginPath();
-                const overMidpoint = computeMidpoint(
-                    cachedRects[currentlyDraggingOver.index].rect
-                );
-                const draggingMidpoint = computeMidpoint(
-                    $dragTarget.cachedRect
-                );
-                debugRenderer.moveTo(overMidpoint.x, overMidpoint.y);
-                debugRenderer.lineTo(draggingMidpoint.x, draggingMidpoint.y);
-                debugRenderer.strokeStyle = '#00FF00';
-                debugRenderer.stroke();
-            }
-        }
+        renderDebugBoundingBoxes($dragTarget, currentlyDraggingOver, cellLayouts, debugRenderer);
     }
 </script>
 
