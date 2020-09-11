@@ -59,7 +59,11 @@ type CalculatePosition = (
     dragTarget: DragTarget,
     items: Item[],
     layouts: Layout[]
-) => { index: number; placement: 'before' | 'after' | undefined };
+) => {
+    index: number;
+    placement?: 'before' | 'after';
+    scrollIntoView?: boolean;
+};
 // Types for reference
 type DragTarget = {
     item: Item;
@@ -80,6 +84,8 @@ type Layout = {
 ```
 
 If `placement` is undefined, it will default to `before`.
+If `scrollIntoView` is undefined, it will default to `false`.
+When enabling `scrollIntoView`, you may also want to `disableScrollOnDrag`.
 Providing an implementation for `overrideDropPosition` can be useful if you are doing drag and drop on sorted lists.
 
 ### - disableScrollOnDrag

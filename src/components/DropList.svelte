@@ -129,6 +129,7 @@
         | undefined = undefined;
     let hierarchyKey: string | undefined = key ?? dropGroup?.key;
     let active: boolean = false;
+    let autoscroll: boolean = false;
 
     $: {
         hierarchyKey = key ?? dropGroup?.key;
@@ -534,6 +535,9 @@
     };
 
     const checkScroll = () => {
+        if (autoscroll) {
+            return;
+        }
         if (disableScrollOnDrag) {
             dragScrollTween = undefined;
             dragScrollTarget = dragScrollCurrent;
@@ -603,29 +607,45 @@
         }
     };
 
-    const hoverCallback: HoverCallback = (fireEvent: boolean) => {
-        checkScroll();
-        let hoverResult: HoverResult;
+    const findDropTraget = () => {
+        let hoverResult: HoverResult | undefined = undefined;
         if (!!overrideDropPosition) {
             if (cellLayouts.length !== $cache.items.length) {
-                computeLayouts(
-                    $cache.items,
-                    wrappingElements,
-                    cellLayouts
-                );
+                computeLayouts($cache.items, wrappingElements, cellLayouts);
             }
-            const { index, placement } = overrideDropPosition(
+            const { index, placement, scrollIntoView } = overrideDropPosition(
                 $dragTarget,
                 [...$cache.items],
                 [...cellLayouts]
             );
-            const item = $cache.items[index];
-            hoverResult = {
-                index,
-                item,
-                element: wrappingElements[(item.id as unknown) as string],
-                placement: placement ?? 'before',
-            };
+            if (index < $cache.items.length) {
+                const item = $cache.items[index];
+                hoverResult = {
+                    index,
+                    item,
+                    element: wrappingElements[(item.id as unknown) as string],
+                    placement: placement ?? 'before',
+                };
+                if (
+                    scrollIntoView &&
+                    (!currentlyDraggingOver ||
+                        currentlyDraggingOver.index !== index)
+                ) {
+                    const axis = direction === 'horizontal' ? 'x' : 'y';
+                    const size =
+                        direction === 'horizontal' ? 'width' : 'height';
+                    dragScrollTarget = Math.trunc(
+                        computeMidpoint(cellLayouts[index].rect)[axis] +
+                            dragScrollCurrent -
+                            cachedDropZoneRect[size] / 2
+                    );
+                    dragScrollTween = tweened(dragScrollCurrent, {
+                        duration: 250,
+                    });
+                    dragScrollTween.set(dragScrollTarget);
+                    autoscroll = true;
+                }
+            }
         } else {
             hoverResult = computeHoverResult(
                 $dragTarget,
@@ -650,6 +670,12 @@
         } else if (!!currentlyDraggingOver) {
             startDragOff();
         }
+        return hoverResult;
+    };
+
+    const hoverCallback: HoverCallback = (fireEvent: boolean) => {
+        checkScroll();
+        let hoverResult = findDropTraget();
         if (fireEvent) {
             dispatch('dragmove', {
                 item: $dragTarget.item,
@@ -863,18 +889,11 @@
             cellLayouts = translateLayoutsBy(cellLayouts, 0, offsetPosition);
         }
         if (dragScrollCurrent === dragScrollTarget) {
+            autoscroll = false;
             checkScroll();
         }
         if (active) {
-            computeHoverResult(
-                $dragTarget,
-                $cache.items,
-                wrappingElements,
-                cellLayouts,
-                $cache.direction,
-                currentlyDraggingOver,
-                crossingMode
-            );
+            findDropTraget();
         }
     };
 

@@ -19,7 +19,11 @@ export type CalculatePosition = (
     dragTarget: Pick<DragTarget, 'item' | 'cachedRect' | 'lastPosition'>,
     items: Item[],
     layouts: Layout[]
-) => { index: number; placement: Placement | undefined };
+) => {
+    index: number;
+    placement?: Placement;
+    scrollIntoView?: boolean;
+};
 export type Position = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 export type Layout = {

@@ -46,6 +46,7 @@
         crossingMode="{crossingMode}"
         disableSourceShrinking="{disableSourceShrinking}"
         disableDropSpacing="{disableDropSpacing}"
+        overrideDropPosition="{(_, items) => ({ index: Math.trunc(items.length / 2), placement: 'before', scrollIntoView: true })}"
     >
         <div slot="listItem" let:data="{{ item }}">
             <DragHandle itemId="{item.id}">
