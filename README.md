@@ -9,8 +9,9 @@ Includes support for:
 - Movement between lists
 - Conditional drag and drop
 - Drag Handles
-- List Capacity
+- List capacity
 - Mixed sized items
+- Override drop position, with autoscroll
 
 ## Getting Started
 
