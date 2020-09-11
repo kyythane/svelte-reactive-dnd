@@ -11,5 +11,5 @@
 - [DragHandle Disabled](https://svelte.dev/repl/4b48f17273ee4758a2c2c6ce440f6186?version=3.24.1)
 - [Custom Drop Filtering](https://svelte.dev/repl/bed184c9a322404aafd4561058274b04?version=3.24.1)
 - [Highlighting using isDraggingOver](https://svelte.dev/repl/e25569ee35c046af8b98c1650a264ba6?version=3.24.1)
-- [Manually Drag Events](https://svelte.dev/repl/9b52029aeeee4eed8da7b295565ae5f9?version=3.24.1)
+- [Manually Wiring Up Drag Events](https://svelte.dev/repl/9b52029aeeee4eed8da7b295565ae5f9?version=3.24.1)
 - [overrideDropPosition](https://svelte.dev/repl/1f3ae5834b1e4111a192ecc590267aad?version=3.24.1)
