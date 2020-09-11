@@ -15,11 +15,13 @@ Defaults to false.
 ### - disableDropSpacing
 
 Disables inserting a space where an item is dragged over.
+Strongly recommend setting crossing mode to `center` when drop spacing is disabled.
 Defaults to false.
 
 ### - disableSourceShrinking
 
 Disables collapsing the list where the item was dragged from.
+Intended to be used in concert with `disableDropSpacing`, but may be useful on its own.
 Defaults to false.
 
 ### - enableResizeListeners

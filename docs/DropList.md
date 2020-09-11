@@ -57,12 +57,14 @@ Default value set in `dragDropSettings`.
 
 Optional.
 Disables inserting a space where an item is dragged over.
+Strongly recommend setting crossing mode to `center` when drop spacing is disabled.
 Default value set in `dragDropSettings`.
 
 ### - disableSourceShrinking
 
 Optional.
 Disables collapsing the list where the item was dragged from.
+Intended to be used in concert with `disableDropSpacing`, but may be useful on its own.
 Default value set in `dragDropSettings`.
 
 ### - enableResizeListeners

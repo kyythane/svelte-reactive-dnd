@@ -29,7 +29,7 @@
 </style>
 
 <script>
-    import * as seedRandom from 'seedrandom';
+    import seedRandom from 'seedrandom';
     import DropList from '../lib/components/DropList.svelte';
     import DragHandle from '../lib/components/DragHandle.svelte';
     export let numItems;
