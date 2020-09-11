@@ -83,6 +83,8 @@ type Layout = {
 };
 ```
 
+`Item` is the type of whatever item is in your lists.
+
 If `placement` is undefined, it will default to `before`.
 If `scrollIntoView` is undefined, it will default to `false`.
 When enabling `scrollIntoView`, you may also want to `disableScrollOnDrag`.
@@ -132,19 +134,119 @@ Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`. Default val
 
 ## Events
 
+[This REPL](https://svelte.dev/repl/99d1ae0413ee4a3e807f8fa4df49f1ac?version=3.24.1) logs all of the following events to the console.
+
 ### - itemdraggedout
 
-### - dragcancelled
+This event fires from the source `DropList` when a drop is complete.
+It does not fire if the item is dropped in the same list it was dragged from.
+In many cases, `listSnapshot` is all that's needed to update the list.
+But because `DropList` caches its internal list representation, `listSnapshot` may be out of date if your component is receiving updates from a remote server.
+In that case it is left to the user to filter out the item themselves.
+
+```ts
+type ItemDraggedOut = {
+    item: Item;
+    listSnapshot: Item[];
+    destinationIdentifer: number | string | undefined
+}
+```
+
+`Item` is the type of whatever item is in your lists.
+`destinationIdentifier` will be `undefined` if you are not populating `identifier`s for your `DropList`s
 
 ### - itemdroppedin
 
+This event fires from the destination `DropList` when a drop is complete.
+`insertedAfter` will be undefined when the index is 0.
+In many cases, `listSnapshot` is all that's needed to update the list.
+But because `DropList` caches its internal list representation, `listSnapshot` may be out of date if your component is receiving updates from a remote server.
+In that case `index` and `insertedAfter` may be useful for determining the best position for the item.
+
+```ts
+type ItemDroppedIn = {
+    item: Item;
+    index: number;
+    insertedAfter: Item | undefined;
+    listSnapshot: Item[];
+    sourceIdentifer: number | string | undefined
+}
+```
+
+`Item` is the type of whatever item is in your lists.
+`destinationIdentifier` will be `undefined` if you are not populating `identifier`s for your `DropList`s
+
+### - dragcancelled
+
+Fired from the source `DropList` once the item returns to its original position.
+
+```ts
+type DragCancelled = {
+    item: Item;
+}
+```
+
+`Item` is the type of whatever item is in your lists.
+
 ### - drageenter
+
+Fired when an item is dragged over a `DropList`.
+This event may fire for the source list after `DragStart`, if the item is still over the list after it is finished being picked up.
+
+```ts
+type DragEnter = {
+    item: Item;
+    rect: Rect;
+    sourceIdentifer: number | string | undefined
+}
+type Rect = { x: number; y: number; width: number; height: number };
+```
+
+`Item` is the type of whatever item is in your lists.
+`sourceIdentifer` will be `undefined` if you are not populating `identifier`s for your `DropList`s
 
 ### - dragleave
 
+Fired when an item is dragged out of a `DropList`.
+
+```ts
+type DragEnter = {
+    item: Item;
+    rect: Rect;
+}
+type Rect = { x: number; y: number; width: number; height: number };
+```
+
+`Item` is the type of whatever item is in your lists.
+
 ### - dragmove
 
+Fired when an item is moved when over a `DropList`.
+`over` will be the same item that `isDraggingOver` is `true` for.
+
+```ts
+type ItemDroppedIn = {
+    item: Item;
+    rect: Rect;
+    index: number;
+    over: Item | undefiend;
+}
+type Rect = { x: number; y: number; width: number; height: number };
+```
+
+`Item` is the type of whatever item is in your lists.
+
 ### - dragstart
+
+Fired from the source `DropList` as soon as the item is picked up.
+
+```ts
+type DragStart = {
+    item: Item;
+}
+```
+
+`Item` is the type of whatever item is in your lists.
 
 ## Slots
 

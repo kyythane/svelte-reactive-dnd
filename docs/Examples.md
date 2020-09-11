@@ -6,6 +6,7 @@
 - [Basic Horizontal List](https://svelte.dev/repl/160eb16cc5bb4696a961c446332b3c8f?version=3.24.1)
 - [Keys](https://svelte.dev/repl/0c97c78817b64d93997bc9f8637956e0?version=3.24.1)
 - [DropGroup Example](https://svelte.dev/repl/3cb8b7aa29f14537856bcd228e2fe949?version=3.24.1)
+- [Drag Events](https://svelte.dev/repl/99d1ae0413ee4a3e807f8fa4df49f1ac?version=3.24.1)
 - [Multiple Horizontal Lists](https://svelte.dev/repl/d2e8cde072ca4b4486d56123133eb704?version=3.24.1)
 - [DropList Disabled and Capacity](https://svelte.dev/repl/c93a80370f1749199d69a1c38aa06d6e?version=3.24.1)
 - [DragHandle Disabled](https://svelte.dev/repl/4b48f17273ee4758a2c2c6ce440f6186?version=3.24.1)

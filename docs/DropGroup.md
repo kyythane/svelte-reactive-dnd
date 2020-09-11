@@ -22,7 +22,7 @@ Three events are defined:
 
 ### - `dragcomplete`
 
-Called once the item has taken its place in the new list.
+Fired once the item has taken its place in the new list.
 Like how `DropList` doesn't fire an `itemdraggedout` event if the item is dropped in the same list it was dragged from, `DropGroup` does not provide a `sourceResult` when the item is dropped in the same list it was dragged from.
 
 **Types:**
@@ -52,7 +52,7 @@ type DestinationResult = {
 
 ### - `dragstart`
 
-Called as soon as the item is picked up.
+Fired as soon as the item is picked up.
 
 **Types:**
 
@@ -67,7 +67,7 @@ type details = {
 
 ### - `dragcancelled`
 
-Called once the item returns to its original position
+Fired once the item returns to its original position
 
 **Types:**
 
