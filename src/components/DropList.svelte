@@ -47,6 +47,7 @@
         //   renderDebugBoundingBoxes,
         computeHoverResult,
         calculateDropPosition,
+        computeLayouts,
     } from '../helpers/utilities';
     import {
         dragging,
@@ -69,6 +70,7 @@
         HoverCallback,
         HoverResult,
         Layout,
+        CalculatePosition,
     } from '../helpers/types';
 
     export let items: Array<Item>;
@@ -91,6 +93,7 @@
         item: Item,
         sourceIdentifier: Id
     ) => boolean = () => true;
+    export let overrideDropPosition: CalculatePosition | undefined = undefined;
     export let identifier: Id | undefined = undefined;
 
     const id = dropTargetId.next();
@@ -602,15 +605,38 @@
 
     const hoverCallback: HoverCallback = (fireEvent: boolean) => {
         checkScroll();
-        const hoverResult = computeHoverResult(
-            $dragTarget,
-            $cache.items,
-            wrappingElements,
-            cellLayouts,
-            $cache.direction,
-            currentlyDraggingOver,
-            crossingMode
-        );
+        let hoverResult: HoverResult;
+        if (!!overrideDropPosition) {
+            if (cellLayouts.length !== $cache.items.length) {
+                computeLayouts(
+                    $cache.items,
+                    wrappingElements,
+                    cellLayouts
+                );
+            }
+            const { index, placement } = overrideDropPosition(
+                $dragTarget,
+                [...$cache.items],
+                [...cellLayouts]
+            );
+            const item = $cache.items[index];
+            hoverResult = {
+                index,
+                item,
+                element: wrappingElements[(item.id as unknown) as string],
+                placement: placement ?? 'before',
+            };
+        } else {
+            hoverResult = computeHoverResult(
+                $dragTarget,
+                $cache.items,
+                wrappingElements,
+                cellLayouts,
+                $cache.direction,
+                currentlyDraggingOver,
+                crossingMode
+            );
+        }
         if (!!hoverResult) {
             if (!currentlyDraggingOver) {
                 startDragOver(hoverResult);

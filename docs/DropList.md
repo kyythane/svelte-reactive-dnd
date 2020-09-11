@@ -47,6 +47,41 @@ A function that takes in an `Item` and an `identifier`, and needs to return a `b
 There is no `shouldAllowDrag` that should be handled by setting `disabled` on the corresponding `DragHandle` or manually when wiring up the drag events.
 [Example](https://svelte.dev/repl/bed184c9a322404aafd4561058274b04?version=3.24.1)
 
+### - overrideDropPosition
+
+Optional.
+A function that will override the built in drop hovering logic.
+If this parameter is enabled, `crossingMode` will no longer have any impact.
+Function signature with relevant types:
+
+```ts
+type CalculatePosition = (
+    dragTarget: DragTarget,
+    items: Item[],
+    layouts: Layout[]
+) => { index: number; placement: 'before' | 'after' | undefined };
+// Types for reference
+type DragTarget = {
+    item: Item;
+    cachedRect: Rect;
+    lastPosition: Position;
+};
+export type Position = { x: number; y: number };
+type Rect = { x: number; y: number; width: number; height: number };
+type Layout = {
+    rect: Rect;
+    offsets: {
+        paddingTop: number;
+        paddingBottom: number;
+        paddingLeft: number;
+        paddingRight: number;
+    };
+};
+```
+
+If `placement` is undefined, it will default to `before`.
+Providing an implementation for `overrideDropPosition` can be useful if you are doing drag and drop on sorted lists.
+
 ### - disableScrollOnDrag
 
 Optional.

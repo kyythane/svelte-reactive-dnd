@@ -284,6 +284,20 @@ export function computeHoverResult(
     return hoverResult;
 }
 
+export function computeLayouts(
+    items: Item[],
+    wrappingElements: { [id: string]: HTMLDivElement },
+    layouts: Layout[]
+): void {
+    for (let index = 0; index < items.length; index++) {
+        const cachedItem = items[index];
+        const element = wrappingElements[(cachedItem.id as unknown) as string];
+        if (index >= layouts.length || layouts[index] === undefined) {
+            layouts[index] = createLayout(element.getBoundingClientRect());
+        }
+    }
+}
+
 function findOverlapping(
     dragTarget: DragTarget,
     items: Item[],

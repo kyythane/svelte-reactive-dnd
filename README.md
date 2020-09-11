@@ -10,6 +10,7 @@ Includes support for:
 - Conditional drag and drop
 - Drag Handles
 - List Capacity
+- Mixed sized items
 
 ## Getting Started
 

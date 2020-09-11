@@ -15,6 +15,11 @@ export type HoverResult = {
 };
 export type DropCallback = (dragTarget: HoverResult | undefined) => void;
 export type HoverCallback = (fireEvent: boolean) => HoverResult | undefined;
+export type CalculatePosition = (
+    dragTarget: Pick<DragTarget, 'item' | 'cachedRect' | 'lastPosition'>,
+    items: Item[],
+    layouts: Layout[]
+) => { index: number; placement: Placement | undefined };
 export type Position = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 export type Layout = {
