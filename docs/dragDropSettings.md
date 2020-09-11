@@ -9,19 +9,38 @@ There are two categories of settings in `dragDropSettings`: `defaults`, which ca
 
 ### - disableScrollOnDrag
 
-Disables scrolling when an item is dragged to the start or end of a list. Defaults to false.
+Disables scrolling when an item is dragged to the start or end of a list.
+Defaults to false.
 
 ### - disableDropSpacing
 
-Disables inserting a space where an item is dragged over. Defaults to false.
+Disables inserting a space where an item is dragged over.
+Defaults to false.
+
+### - disableSourceShrinking
+
+Disables collapsing the list where the item was dragged from.
+Defaults to false.
 
 ### - enableResizeListeners
 
-Enables resize listeners on `DropList`s that will update the size of the droppable area when the `DropList` is resized. Defaults to false.
+Enables resize listeners on `DropList`s that will update the size of the droppable area when the `DropList` is resized.
+Defaults to false.
+
+### - crossingMode
+
+Decides how `DropList`s determine if the item being dragged has "moved past" an item in the list.
+Options are `center` and `edge`.
+The `edge` mode will shift the item in the list once the the leading edge of the dragged item has moved past its center.
+The `center` mode will shift the item in the list once the center of the dragged item has moved past its center.
+The `edge` mode was inspired by [this article](https://dev.to/alexandereardon/overhauling-our-collision-engine-962).
+Defaults to `edge`.
 
 ### - direction
 
-Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`. Defaults to `'vertical'`.
+Direction of the `DropList`s. Either `'horizontal'` or `'vertical'`.
+Defaults to `'vertical'`.
+[Horizontal DropList Example](https://svelte.dev/repl/d2e8cde072ca4b4486d56123133eb704?version=3.24.1)
 
 ## globals
 

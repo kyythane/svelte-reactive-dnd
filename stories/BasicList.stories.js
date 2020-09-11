@@ -11,6 +11,12 @@ export default {
                 options: ['horizontal', 'vertical'],
             },
         },
+        crossingMode: {
+            control: {
+                type: 'inline-radio',
+                options: ['edge', 'center'],
+            },
+        },
     },
 };
 
@@ -23,10 +29,12 @@ export const Basic = Template.bind({});
 Basic.args = {
     direction: 'vertical',
     numItems: 5,
+    crossingMode: 'edge',
 };
 
 export const Horizontal = Template.bind({});
 Horizontal.args = {
     direction: 'horizontal',
     numItems: 5,
+    crossingMode: 'edge',
 };

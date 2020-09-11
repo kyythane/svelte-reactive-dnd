@@ -68,7 +68,9 @@ export type DragDropSettings = {
     defaults: {
         disableScrollOnDrag: boolean;
         disableDropSpacing: boolean;
+        disableSourceShrinking: boolean;
         enableResizeListeners: boolean;
+        crossingMode: 'center' | 'edge';
         direction: 'horizontal' | 'vertical';
     };
     globals: {

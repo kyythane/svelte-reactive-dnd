@@ -227,7 +227,8 @@ export function computeHoverResult(
     wrappingElements: { [id: string]: HTMLDivElement },
     layouts: Layout[],
     direction: Direction,
-    lastHoverResult: HoverResult | undefined
+    lastHoverResult: HoverResult | undefined,
+    crossingMode: 'edge' | 'center'
 ): HoverResult {
     if (items.length === 0) {
         return undefined;
@@ -262,21 +263,23 @@ export function computeHoverResult(
             ? next
             : last;
     });
-    const collisionPlacement = collides(
-        dragTarget,
-        layouts[hoverResult.index],
-        direction,
-        hoverResult.placement
-    );
-    if (collisionPlacement === 'transition') {
-        if (!!lastHoverResult) {
-            hoverResult.placement = lastHoverResult.placement;
+    if (crossingMode === 'edge') {
+        const collisionPlacement = collides(
+            dragTarget,
+            layouts[hoverResult.index],
+            direction,
+            hoverResult.placement
+        );
+        if (collisionPlacement === 'transition') {
+            if (!!lastHoverResult) {
+                hoverResult.placement = lastHoverResult.placement;
+            } else {
+                hoverResult.placement =
+                    hoverResult.placement === 'before' ? 'after' : 'before';
+            }
         } else {
-            hoverResult.placement =
-                hoverResult.placement === 'before' ? 'after' : 'before';
+            hoverResult.placement = collisionPlacement;
         }
-    } else {
-        hoverResult.placement = collisionPlacement;
     }
     return hoverResult;
 }

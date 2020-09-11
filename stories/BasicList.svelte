@@ -30,6 +30,7 @@
     import DragHandle from '../lib/components/DragHandle.svelte';
     export let numItems;
     export let direction;
+    export let crossingMode;
     let items = new Array(numItems)
         .fill(0)
         .map((_, index) => ({ id: index, title: `Item: ${index}` }));
@@ -40,6 +41,7 @@
         items="{items}"
         on:itemdroppedin="{({ detail }) => (items = detail.listSnapshot)}"
         direction="{direction}"
+        crossingMode="{crossingMode}"
     >
         <div slot="listItem" let:data="{{ item }}">
             <DragHandle itemId="{item.id}">

@@ -43,8 +43,8 @@
         translateLayoutsBy,
         lerp,
         updateCursor,
-      //  createDebugRender,
-     //   renderDebugBoundingBoxes,
+        //  createDebugRender,
+        //   renderDebugBoundingBoxes,
         computeHoverResult,
         calculateDropPosition,
     } from '../helpers/utilities';
@@ -79,8 +79,12 @@
         $dragDropSettings.defaults.disableScrollOnDrag;
     export let disableDropSpacing: boolean =
         $dragDropSettings.defaults.disableDropSpacing;
+    export let disableSourceSrinking: boolean =
+        $dragDropSettings.defaults.disableSourceShrinking;
     export let enableResizeListeners: boolean =
         $dragDropSettings.defaults.enableResizeListeners;
+    export let crossingMode: 'edge' | 'center' =
+        $dragDropSettings.defaults.crossingMode;
     export let direction: 'horizontal' | 'vertical' =
         $dragDropSettings.defaults.direction;
     export let shouldAllowDrop: (
@@ -135,7 +139,7 @@
         }
     }
 
-   // const debugRenderer = createDebugRender();
+    // const debugRenderer = createDebugRender();
 
     const dispatch = createEventDispatcher();
 
@@ -596,7 +600,8 @@
             wrappingElements,
             cellLayouts,
             $cache.direction,
-            currentlyDraggingOver
+            currentlyDraggingOver,
+            crossingMode
         );
         if (!!hoverResult) {
             if (!currentlyDraggingOver) {
@@ -832,7 +837,8 @@
                 wrappingElements,
                 cellLayouts,
                 $cache.direction,
-                currentlyDraggingOver
+                currentlyDraggingOver,
+                crossingMode
             );
         }
     };

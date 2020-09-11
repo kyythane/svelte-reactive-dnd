@@ -11,7 +11,9 @@ export const dragDropSettings: Writable<DragDropSettings> = writable({
     defaults: {
         disableScrollOnDrag: false,
         disableDropSpacing: false,
+        disableSourceShrinking: false,
         enableResizeListeners: false,
+        crossingMode: 'edge',
         direction: 'vertical',
     },
     globals: {

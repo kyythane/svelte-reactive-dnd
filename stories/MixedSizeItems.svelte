@@ -12,10 +12,13 @@
         width: 500px;
     }
     .base-item {
+        display: flex;
         margin: 2px;
         padding: 0px 8px;
         border: solid black 1px;
         background-color: whitesmoke;
+        align-items: center;
+        font-size: small;
     }
     .vertical-item {
         width: 178px;
@@ -34,6 +37,7 @@
     export let minSize;
     export let maxSize;
     export let seed;
+    export let crossingMode;
     let rng = seedRandom(seed);
     let items = new Array(numItems)
         .fill(0)
@@ -45,6 +49,7 @@
         items="{items}"
         on:itemdroppedin="{({ detail }) => (items = detail.listSnapshot)}"
         direction="{direction}"
+        crossingMode="{crossingMode}"
     >
         <div slot="listItem" let:data="{{ item }}">
             <DragHandle itemId="{item.id}">

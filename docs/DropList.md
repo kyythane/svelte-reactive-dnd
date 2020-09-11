@@ -50,18 +50,35 @@ There is no `shouldAllowDrag` that should be handled by setting `disabled` on th
 ### - disableScrollOnDrag
 
 Optional.
-Disables scrolling when an item is dragged to the start or end of a list. Default value set in `dragDropSettings`.
+Disables scrolling when an item is dragged to the start or end of a list.
+Default value set in `dragDropSettings`.
 
 ### - disableDropSpacing
 
 Optional.
-Disables inserting a space where an item is dragged over. Default value set in `dragDropSettings`.
+Disables inserting a space where an item is dragged over.
+Default value set in `dragDropSettings`.
+
+### - disableSourceShrinking
+
+Optional.
+Disables collapsing the list where the item was dragged from.
+Default value set in `dragDropSettings`.
 
 ### - enableResizeListeners
 
 Optional.
 Enables resize listeners on `DropList`s that will update the size of the droppable area when the `DropList` is resized. Default value set in `dragDropSettings`.
 This uses [dimension bindings](https://svelte.dev/tutorial/dimensions), which has some overhead, so it should generally only be enabled for top level items.
+
+### - crossingMode
+
+Decides how `DropList`s determine if the item being dragged has "moved past" an item in the list.
+Options are `center` and `edge`.
+The `edge` mode will shift the item in the list once the the leading edge of the dragged item has moved past its center.
+The `center` mode will shift the item in the list once the center of the dragged item has moved past its center.
+The `edge` mode was inspired by [this article](https://dev.to/alexandereardon/overhauling-our-collision-engine-962).
+Default value set in `dragDropSettings`.
 
 ### - direction
 
