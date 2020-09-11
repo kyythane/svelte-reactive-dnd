@@ -31,6 +31,8 @@
     export let numItems;
     export let direction;
     export let crossingMode;
+    export let disableSourceShrinking;
+    export let disableDropSpacing;
     let items = new Array(numItems)
         .fill(0)
         .map((_, index) => ({ id: index, title: `Item: ${index}` }));
@@ -42,6 +44,8 @@
         on:itemdroppedin="{({ detail }) => (items = detail.listSnapshot)}"
         direction="{direction}"
         crossingMode="{crossingMode}"
+        disableSourceShrinking="{disableSourceShrinking}"
+        disableDropSpacing="{disableDropSpacing}"
     >
         <div slot="listItem" let:data="{{ item }}">
             <DragHandle itemId="{item.id}">

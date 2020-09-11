@@ -79,7 +79,7 @@
         $dragDropSettings.defaults.disableScrollOnDrag;
     export let disableDropSpacing: boolean =
         $dragDropSettings.defaults.disableDropSpacing;
-    export let disableSourceSrinking: boolean =
+    export let disableSourceShrinking: boolean =
         $dragDropSettings.defaults.disableSourceShrinking;
     export let enableResizeListeners: boolean =
         $dragDropSettings.defaults.enableResizeListeners;
@@ -244,9 +244,11 @@
                 cleanupAfterDrag();
             } else {
                 $dragging = 'returning';
-                sourceElementTween.set(
-                    $dragTarget.sourceRect[$cache.dimensionKey]
-                );
+                if (!disableSourceShrinking) {
+                    sourceElementTween.set(
+                        $dragTarget.sourceRect[$cache.dimensionKey]
+                    );
+                }
                 if (!!currentlyDraggingOver) {
                     startDragOff();
                 }
@@ -337,13 +339,6 @@
                         easing: cubicOut,
                     }
                 );
-                sourceElementTween = tweened(
-                    $dragTarget.sourceRect[$cache.dimensionKey],
-                    {
-                        duration: $dragDropSettings.globals.animationMs,
-                        easing: cubicOut,
-                    }
-                );
                 updateContainingStyleSize(
                     containingElement,
                     $cache.direction,
@@ -365,8 +360,17 @@
                 dispatch('dragstart', {
                     item: $dragTarget.item,
                 });
-                // Tweened .set returns a promise that resolves, but our types don't show that
-                await sourceElementTween.set(0);
+                if (!disableSourceShrinking) {
+                    sourceElementTween = tweened(
+                        $dragTarget.sourceRect[$cache.dimensionKey],
+                        {
+                            duration: $dragDropSettings.globals.animationMs,
+                            easing: cubicOut,
+                        }
+                    );
+                    // Tweened .set returns a promise that resolves, but our types don't show that
+                    await sourceElementTween.set(0);
+                }
                 $dragging = 'dragging';
                 cellLayouts = [];
             }
@@ -440,7 +444,12 @@
     };
 
     const startDragOver = (hoverResult: HoverResult) => {
-        if (disableDropSpacing) {
+        if (
+            disableDropSpacing ||
+            (disableSourceShrinking &&
+                hoverResult.item.id === $dragTarget.item.id)
+        ) {
+            currentlyDraggingOver = hoverResult;
             return;
         }
         const draggedOffIndex = previouslyDraggedOver.findIndex(
@@ -469,7 +478,6 @@
                 new Array(filteredSizes.length).fill(0)
             );
         }
-
         currentlyDraggingOver = hoverResult;
         hoverEnterElementTween = tweened(startingSize, {
             duration: $dragDropSettings.globals.animationMs,
@@ -706,6 +714,7 @@
     // Hide element that was dragged
     $: {
         if (
+            !disableSourceShrinking &&
             $dragTarget?.controllingDropZoneId === id &&
             ($dragging === 'picking-up' || $dragging === 'returning')
         ) {

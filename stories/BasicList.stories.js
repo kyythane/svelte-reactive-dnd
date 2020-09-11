@@ -17,6 +17,8 @@ export default {
                 options: ['edge', 'center'],
             },
         },
+        disableDropSpacing: { control: 'boolean' },
+        disableSourceShrinking: { control: 'boolean' },
     },
 };
 
@@ -30,6 +32,8 @@ Basic.args = {
     direction: 'vertical',
     numItems: 5,
     crossingMode: 'edge',
+    disableDropSpacing: false,
+    disableSourceShrinking: false,
 };
 
 export const Horizontal = Template.bind({});
@@ -37,4 +41,6 @@ Horizontal.args = {
     direction: 'horizontal',
     numItems: 5,
     crossingMode: 'edge',
+    disableDropSpacing: false,
+    disableSourceShrinking: false,
 };
