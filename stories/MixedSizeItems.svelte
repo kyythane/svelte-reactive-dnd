@@ -32,6 +32,7 @@
     import seedRandom from 'seedrandom';
     import DropList from '../lib/components/DropList.svelte';
     import DragHandle from '../lib/components/DragHandle.svelte';
+
     export let numItems;
     export let direction;
     export let minSize;

@@ -9,17 +9,29 @@
 </style>
 
 <script lang="ts">
-    import type { Id, DropTarget } from '../helpers/types';
+    import type { Id, DropTarget, DragEventHandlers } from '../helpers/types';
     import { dropTargets } from '../helpers/stores';
+    import { getContext } from 'svelte';
+    import type { Writable } from 'svelte/store';
 
     export let itemId: Id;
     export let disabled: boolean = false;
+    export let eventHandlers: DragEventHandlers | undefined;
 
-    let dropZone: DropTarget | undefined;
+    const dropZone = getContext('reactive-drop-list') as
+        | Writable<DropTarget>
+        | undefined;
+
+    let currentEventHandlers: DragEventHandlers | undefined;
 
     $: {
-        // This is fairly naive, but in 95% of cases it should be "fine"
-        dropZone = $dropTargets.find((target) => target.hasItem(itemId));
+        if (!!eventHandlers) {
+            currentEventHandlers = eventHandlers;
+        } else {
+            if ($dropZone?.hasItem(itemId)) {
+                currentEventHandlers = $dropZone.getEventHandlers();
+            }
+        }
     }
 </script>
 
@@ -27,21 +39,21 @@
 <div
     id="{`reactive-dnd-drag-handle-${itemId}`}"
     on:mousedown="{(event) => {
-        if (!disabled && !!dropZone) {
-            dropZone.getEventHandlers().handleMouseDown(event, itemId);
+        if (!disabled && !!currentEventHandlers) {
+            currentEventHandlers.handleMouseDown(event, itemId);
         }
     }}"
     on:mouseup="{(event) => {
-        if (!!dropZone) {
-            dropZone.getEventHandlers().handleMouseUp(event);
+        if (!!currentEventHandlers) {
+            currentEventHandlers.handleMouseUp(event);
         }
     }}"
     on:mousemove="{(event) => {
-        if (!!dropZone) {
-            dropZone.getEventHandlers().handleMouseMove(event);
+        if (!!currentEventHandlers) {
+            currentEventHandlers.handleMouseMove(event);
         }
     }}"
-    class="{!dropZone || dropZone.disabled() || disabled ? 'disabled' : 'default'}"
+    class="{!dropZone || $dropZone.disabled() || disabled ? 'disabled' : 'default'}"
 >
     <slot />
 </div>

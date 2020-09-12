@@ -29,9 +29,11 @@
         onDestroy,
         createEventDispatcher,
         getContext,
+        setContext,
     } from 'svelte';
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
+    import { writable } from 'svelte/store';
     import {
         computeMidpoint,
         makeDraggableElement,
@@ -713,46 +715,6 @@
         });
     };
 
-    // Update the dropTarget for this dropZone
-    $: {
-        if (mounted) {
-            if (
-                enableResizeListeners &&
-                (cachedDropZoneRect.width !== currentWidth ||
-                    cachedDropZoneRect.height !== currentHeight)
-            ) {
-                let bounding = dropZone.getBoundingClientRect();
-                cachedDropZoneRect = {
-                    x: bounding.left,
-                    y: bounding.top,
-                    width: currentWidth,
-                    height: currentHeight,
-                };
-                $dropTargets = [
-                    ...$dropTargets.filter((dt) => dt.id !== id),
-                    {
-                        id,
-                        key: () => hierarchyKey,
-                        clientIdentifier: () => identifier,
-                        rect: cachedDropZoneRect,
-                        dropElement: dropZone,
-                        dropCallback,
-                        hoverCallback,
-                        prepareDropZone,
-                        enterDropZone,
-                        leaveDropZone,
-                        hasItem,
-                        getEventHandlers,
-                        cleanupDropZone,
-                        canDrop,
-                        disabled: () => disabled,
-                        dropPosition,
-                    },
-                ];
-            }
-        }
-    }
-
     // Update list of items
     $: {
         if ($dragging === 'none' || hierarchyKey !== $dragTarget.key) {
@@ -977,6 +939,57 @@
         }
     }
 
+    const makeDropList = () => {
+        return {
+            id,
+            key: () => hierarchyKey,
+            clientIdentifier: () => identifier,
+            rect: cachedDropZoneRect,
+            dropElement: dropZone,
+            dropCallback,
+            hoverCallback,
+            prepareDropZone,
+            enterDropZone,
+            leaveDropZone,
+            hasItem,
+            getEventHandlers,
+            cleanupDropZone,
+            canDrop,
+            disabled: () => disabled,
+            dropPosition,
+        };
+    };
+
+    const dropList = writable(makeDropList());
+    setContext('reactive-drop-list', dropList);
+
+    // Update the dropTarget for this dropZone
+    $: {
+        if (mounted) {
+            if (
+                enableResizeListeners &&
+                (cachedDropZoneRect.width !== currentWidth ||
+                    cachedDropZoneRect.height !== currentHeight)
+            ) {
+                let bounding = dropZone.getBoundingClientRect();
+                cachedDropZoneRect = {
+                    x: bounding.left,
+                    y: bounding.top,
+                    width: currentWidth,
+                    height: currentHeight,
+                };
+                dropList.update((list) => ({
+                    ...list,
+                    rect: cachedDropZoneRect,
+                }));
+                $dropTargets = [
+                    ...$dropTargets.filter((dt) => dt.id !== id),
+                    $dropList,
+                ];
+            }
+        }
+    }
+
     onMount(() => {
         let bounding = dropZone.getBoundingClientRect();
         cachedDropZoneRect = {
@@ -985,27 +998,8 @@
             width: enableResizeListeners ? currentWidth : bounding.width,
             height: enableResizeListeners ? currentHeight : bounding.height,
         };
-        $dropTargets = [
-            ...$dropTargets,
-            {
-                id,
-                key: () => hierarchyKey,
-                clientIdentifier: () => identifier,
-                rect: cachedDropZoneRect,
-                dropElement: dropZone,
-                dropCallback,
-                hoverCallback,
-                prepareDropZone,
-                enterDropZone,
-                leaveDropZone,
-                hasItem,
-                getEventHandlers,
-                cleanupDropZone,
-                canDrop,
-                disabled: () => disabled,
-                dropPosition,
-            },
-        ];
+        dropList.update((list) => ({ ...list, rect: cachedDropZoneRect }));
+        $dropTargets = [...$dropTargets, $dropList];
         mounted = true;
     });
 
