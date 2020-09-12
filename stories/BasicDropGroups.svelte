@@ -8,24 +8,53 @@
 <script>
     import DropGroup from '../lib/components/DropGroup.svelte';
     import List from './List.svelte';
-    let items = [
-        [
-            { id: 1, title: 'Apple' },
-            { id: 2, title: 'Banana' },
-            { id: 3, title: 'Cherry' },
-        ],
-        [
-            { id: 4, title: 'Grape' },
-            { id: 5, title: 'Kiwi' },
-            { id: 6, title: 'Lime' },
-            { id: 7, title: 'Orange' },
-            { id: 8, title: 'Pear' },
-        ],
-        [
-            { id: 9, title: 'Melon' },
-            { id: 10, title: 'Star fruit' },
-        ],
-    ];
+
+    export let mode = 'single';
+    let items;
+    if (mode === 'single') {
+        items = [
+            [
+                { id: 1, title: 'Apple' },
+                { id: 2, title: 'Banana' },
+                { id: 3, title: 'Cherry' },
+            ],
+            [
+                { id: 4, title: 'Grape' },
+                { id: 5, title: 'Kiwi' },
+                { id: 6, title: 'Lime' },
+                { id: 7, title: 'Orange' },
+                { id: 8, title: 'Pear' },
+            ],
+            [
+                { id: 9, title: 'Melon' },
+                { id: 10, title: 'Star fruit' },
+            ],
+        ];
+    } else {
+        items = [
+            [
+                { id: 1, title: 'Apple' },
+                { id: 2, title: 'Banana' },
+                { id: 3, title: 'Cherry' },
+            ],
+            [
+                { id: 4, title: 'Grape' },
+                { id: 5, title: 'Kiwi' },
+                { id: 6, title: 'Lime' },
+                { id: 7, title: 'Orange' },
+                { id: 8, title: 'Pear' },
+            ],
+            [
+                { id: 1, title: 'Lipstick' },
+                { id: 2, title: 'Eyeshadow' },
+            ],
+            [
+                { id: 3, title: 'Toner' },
+                { id: 4, title: 'Foundation' },
+                { id: 5, title: 'Powder' },
+            ],
+        ];
+    }
 
     const onDragComplete = ({ detail }) => {
         const cloned = [...items];
@@ -39,11 +68,27 @@
     };
 </script>
 
-<!-- Creates 4 lists. 3 are part of the parent drop group, one has a different key and is not -->
-<DropGroup on:dragcomplete="{onDragComplete}">
+{#if mode === 'single'}
+    <DropGroup on:dragcomplete="{onDragComplete}">
+        <div class="horiz">
+            <List identifier="{0}" items="{items[0]}" />
+            <List identifier="{1}" items="{items[1]}" />
+            <List identifier="{2}" items="{items[2]}" />
+        </div>
+    </DropGroup>
+{:else}
     <div class="horiz">
-        <List identifier="{0}" items="{items[0]}" />
-        <List identifier="{1}" items="{items[1]}" />
-        <List identifier="{2}" items="{items[2]}" />
+        <DropGroup on:dragcomplete="{onDragComplete}">
+            <div class="horiz">
+                <List identifier="{0}" items="{items[0]}" />
+                <List identifier="{1}" items="{items[1]}" />
+            </div>
+        </DropGroup>
+        <DropGroup on:dragcomplete="{onDragComplete}">
+            <div class="horiz">
+                <List identifier="{2}" items="{items[2]}" />
+                <List identifier="{3}" items="{items[3]}" />
+            </div>
+        </DropGroup>
     </div>
-</DropGroup>
+{/if}
