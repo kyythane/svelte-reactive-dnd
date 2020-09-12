@@ -21,6 +21,12 @@ Install the library
 npm install svelte-reactive-dnd
 ```
 
+or
+
+```bash
+yarn add svelte-reactive-dnd
+```
+
 Start using the parts!
 
 ```html

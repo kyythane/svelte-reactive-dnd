@@ -244,12 +244,10 @@ export function computeHoverResult(
     if (overlapping.length === 0) {
         const lastLayout = layouts[layouts.length - 1];
         // Sanity check to make sure we are actually past the end of our list
-        const index =
-            dragTarget.cachedRect[axis] > lastLayout.rect[axis]
-                ? items.length - 1
-                : 0;
+        const afterLast = dragTarget.cachedRect[axis] > lastLayout.rect[axis];
+        const index = afterLast ? items.length - 1 : 0;
         const item = items[index];
-        const placement: Placement = index === 0 ? 'before' : 'after';
+        const placement: Placement = afterLast ? 'after' : 'before';
         return {
             index,
             item,

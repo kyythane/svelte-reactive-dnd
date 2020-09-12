@@ -20,29 +20,26 @@
     "check:svelte": "svelte-check --ignore g'dist,lib'",
     "check:type": "tsc --noEmit -p ./tsconfig.json",
     "check:lint": "eslint . && prettier --check './**/*.svelte'",
-    "check:markdown": "markdownlint '**/*.md' --ignore node_modules",
+    "check:markdown": "markdownlint '**/*.md'",
     "clean": "rm -rf ./dist && rm -rf ./lib",
     "fix": "npm run fix:lint && npm run fix:markdown",
     "fix:lint": "eslint . --fix && prettier --write './**/*.svelte'",
-    "fix:markdown": "markdownlint '**/*.md' --fix --ignore node_modules",
+    "fix:markdown": "markdownlint '**/*.md' --fix",
     "prepublishOnly": "npm run check && npm run build",
     "storybook": "npm run build:lib && start-storybook -p 6006"
   },
   "lint-staged": {
     "**/*.md": [
-      "markdownlint '**/*.md' --fix --ignore node_modules"
+      "markdownlint --fix"
     ],
     "src/**/*.ts": [
-      "eslint . --fix"
+      "eslint --fix"
     ],
     "stories/**/*.js": [
-      "eslint . --fix"
+      "eslint --fix"
     ],
-    "src/**/*.svelte": [
-      "prettier --write './src/**/*.svelte'"
-    ],
-    "stories/**/*.svelte": [
-      "prettier --write './stories/**/*.svelte'"
+    "(src|stories)/**/*.svelte": [
+      "prettier --write"
     ]
   },
   "husky": {
@@ -50,6 +47,9 @@
       "pre-commit": "lint-staged",
       "pre-push": "npm run check"
     }
+  },
+  "np": {
+    "branch": "main"
   },
   "repository": {
     "type": "git",
