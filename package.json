@@ -29,25 +29,20 @@
     "storybook": "npm run build:lib && start-storybook -p 6006"
   },
   "lint-staged": {
-    "docs/**/*.md": [
-      "markdownlint . --fix",
-      "git add"
+    "**/*.md": [
+      "markdownlint '**/*.md' --fix --ignore node_modules"
     ],
     "src/**/*.ts": [
-      "eslint . --fix",
-      "git add"
+      "eslint . --fix"
     ],
     "stories/**/*.js": [
-      "eslint . --fix",
-      "git add"
+      "eslint . --fix"
     ],
     "src/**/*.svelte": [
-      "prettier --write",
-      "git add"
+      "prettier --write './src/**/*.svelte'"
     ],
     "stories/**/*.svelte": [
-      "prettier --write",
-      "git add"
+      "prettier --write './stories/**/*.svelte'"
     ]
   },
   "husky": {

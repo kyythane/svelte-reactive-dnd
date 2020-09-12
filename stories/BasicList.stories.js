@@ -1,8 +1,8 @@
-import SingleList from './BasicList.svelte';
+import BasicList from './BasicList.svelte';
 
 export default {
     title: 'Lists/BasicList',
-    component: SingleList,
+    component: BasicList,
     argTypes: {
         numItems: { control: 'number' },
         direction: {
@@ -23,12 +23,12 @@ export default {
 };
 
 const Template = ({ ...args }) => ({
-    Component: SingleList,
+    Component: BasicList,
     props: args,
 });
 
-export const Basic = Template.bind({});
-Basic.args = {
+export const Vertical = Template.bind({});
+Vertical.args = {
     direction: 'vertical',
     numItems: 5,
     crossingMode: 'edge',

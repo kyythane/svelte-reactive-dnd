@@ -32,8 +32,8 @@ const Template = ({ ...args }) => ({
     props: args,
 });
 
-export const Basic = Template.bind({});
-Basic.args = {
+export const Vertical = Template.bind({});
+Vertical.args = {
     seed: Math.trunc(Math.random() * 100000),
     minSize: 30,
     maxSize: 80,
