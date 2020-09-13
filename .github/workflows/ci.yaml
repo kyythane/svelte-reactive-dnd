@@ -1,0 +1,24 @@
+name: 'Node Workflow'
+on:
+    push
+    pull_request:
+      branches: [ main ]
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - run: npm ci
+      - run: npm run build --if-present
+      - name: Check
+      - run: npm run check
+      - name: Test
+      - run: npm test
+        env:
+          CI: true
+    
