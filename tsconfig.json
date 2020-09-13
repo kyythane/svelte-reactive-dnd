@@ -8,6 +8,11 @@
     "dist/*"
   ],
   "compilerOptions": {
-    "allowJs": true
-  }
+    "allowJs": true,
+    "types": [
+      "svelte",
+      "jest"
+    ],
+  },
+  "importHelpers": true
 }

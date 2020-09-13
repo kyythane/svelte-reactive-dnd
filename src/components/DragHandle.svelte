@@ -10,7 +10,6 @@
 
 <script lang="ts">
     import type { Id, DropTarget, DragEventHandlers } from '../helpers/types';
-    import { dropTargets } from '../helpers/stores';
     import { getContext } from 'svelte';
     import type { Writable } from 'svelte/store';
 
