@@ -16,7 +16,7 @@
 
     export let itemId: Id;
     export let disabled: boolean = false;
-    export let eventHandlers: DragEventHandlers | undefined;
+    export let dragEventHandlers: DragEventHandlers | undefined;
 
     const dropZone = getContext('reactive-drop-list') as
         | Writable<DropTarget>
@@ -25,8 +25,8 @@
     let currentEventHandlers: DragEventHandlers | undefined;
 
     $: {
-        if (!!eventHandlers) {
-            currentEventHandlers = eventHandlers;
+        if (!!dragEventHandlers) {
+            currentEventHandlers = dragEventHandlers;
         } else {
             if ($dropZone?.hasItem(itemId)) {
                 currentEventHandlers = $dropZone.getEventHandlers();

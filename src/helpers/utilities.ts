@@ -261,22 +261,17 @@ export function computeHoverResult(
             ? next
             : last;
     });
-    if (crossingMode === 'edge') {
+    if (crossingMode === 'edge' && lastHoverResult) {
         const collisionPlacement = collides(
             dragTarget,
             layouts[hoverResult.index],
             direction,
             hoverResult.placement
         );
-        if (collisionPlacement === 'transition') {
-            if (!!lastHoverResult) {
-                hoverResult.placement = lastHoverResult.placement;
-            } else {
-                hoverResult.placement =
-                    hoverResult.placement === 'before' ? 'after' : 'before';
-            }
-        } else {
+        if (collisionPlacement !== 'transition') {
             hoverResult.placement = collisionPlacement;
+        } else if (lastHoverResult.item.id === hoverResult.item.id) {
+            hoverResult.placement = lastHoverResult.placement;
         }
     }
     return hoverResult;

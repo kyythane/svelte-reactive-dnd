@@ -617,8 +617,8 @@
             }
             const { index, placement, scrollIntoView } = overrideDropPosition(
                 $dragTarget,
-                [...$cache.items],
-                [...cellLayouts]
+                $cache.items,
+                cellLayouts
             );
             if (index < $cache.items.length) {
                 const item = $cache.items[index];

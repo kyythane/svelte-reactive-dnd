@@ -88,6 +88,8 @@ type Layout = {
 If `placement` is undefined, it will default to `before`.
 If `scrollIntoView` is undefined, it will default to `false`.
 When enabling `scrollIntoView`, you may also want to `disableScrollOnDrag`.
+Since this event is called on every mouse move, the arrays passed into **are not** copies.
+Modifying them may lead to unexpected behavior.
 Providing an implementation for `overrideDropPosition` can be useful if you are doing drag and drop on sorted lists.
 [Example](https://svelte.dev/repl/1f3ae5834b1e4111a192ecc590267aad?version=3.24.1)
 

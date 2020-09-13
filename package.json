@@ -11,7 +11,8 @@
     "lib"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:jest",
+    "test:jest": "jest",
     "build": "npm run build:dist && npm run build:lib",
     "build:dist": "rollup -c",
     "build:lib": "node -r esm ./buildlib.js -- --quiet",
@@ -74,6 +75,7 @@
   "homepage": "https://github.com/kyythane/svelte-reactive-dnd#readme",
   "devDependencies": {
     "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^5.0.2",
     "@storybook/addon-actions": "^6.0.21",
@@ -90,6 +92,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "esm": "^3.2.25",
     "husky": "^4.2.5",
+    "jest": "^26.4.2",
     "lint-staged": "^10.3.0",
     "markdownlint-cli": "^0.23.2",
     "prettier": "^2.0.5",
@@ -101,9 +104,11 @@
     "seedrandom": "^3.0.5",
     "svelte": "^3.24.1",
     "svelte-check": "^1.0.36",
+    "svelte-jester": "^1.1.5",
     "svelte-loader": "^2.13.6",
     "svelte-preprocess": "^4.2.1",
     "svelte2tsx": "^0.1.104",
+    "ts-jest": "^26.3.0",
     "tslib": "^2.0.1",
     "typescript": "^4.0.2"
   },
