@@ -1,8 +1,17 @@
 import fc from 'fast-check';
 
-import { arbitraryPoint, makeLayout } from './testHelpers';
+import {
+    arbitraryPoint,
+    makeLayout,
+    arbirtraryPlacement,
+    arbirtraryDirection,
+} from './testHelpers';
 import type { Position } from '../src/helpers/types';
-import { moveRectTo, translateLayoutsBy } from '../src/helpers/utilities';
+import {
+    moveRectTo,
+    translateLayoutsBy,
+    calculateDropPosition,
+} from '../src/helpers/utilities';
 
 describe('Basic utility tests', () => {
     describe('moveRectTo', () => {
@@ -56,6 +65,55 @@ describe('Basic utility tests', () => {
                                 });
                             }
                         });
+                    }
+                )
+            );
+        });
+    });
+
+    describe('calculateDropPosition', () => {
+        it('computes the proper offset based on placement and direction', () => {
+            fc.assert(
+                fc.property(
+                    fc.tuple(
+                        arbitraryPoint(),
+                        fc.float(10, 100),
+                        fc.float(10, 100),
+                        arbirtraryPlacement(),
+                        arbirtraryDirection()
+                    ),
+                    ([position, size, offset, placement, direction]) => {
+                        const layout = makeLayout(
+                            position as Position,
+                            size,
+                            offset
+                        );
+                        const dropPosition = calculateDropPosition(
+                            layout,
+                            placement,
+                            direction
+                        );
+                        if (direction === 'horizontal') {
+                            if (placement === 'before') {
+                                expect(dropPosition.x).toBe(
+                                    layout.rect.x - layout.offsets.paddingLeft
+                                );
+                            } else {
+                                expect(dropPosition.x).toBe(
+                                    layout.rect.x + layout.rect.width
+                                );
+                            }
+                        } else {
+                            if (placement === 'before') {
+                                expect(dropPosition.y).toBe(
+                                    layout.rect.y - layout.offsets.paddingTop
+                                );
+                            } else {
+                                expect(dropPosition.y).toBe(
+                                    layout.rect.y + layout.rect.height
+                                );
+                            }
+                        }
                     }
                 )
             );

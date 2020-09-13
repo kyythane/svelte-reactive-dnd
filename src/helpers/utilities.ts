@@ -130,12 +130,12 @@ export function updateCursor(
 }
 
 export function calculateDropPosition(
-    hoverResult: HoverResult,
     layout: Layout,
+    placement: Placement,
     direction: Direction
 ): Position {
     const position = { x: layout.rect.x, y: layout.rect.y };
-    if (hoverResult.placement === 'after') {
+    if (placement === 'after') {
         if (direction === 'horizontal') {
             position.x += layout.rect.width;
         } else {

@@ -204,7 +204,11 @@
             return { x: cachedDropZoneRect.x, y: cachedDropZoneRect.y };
         }
         const layout = cellLayouts[currentlyDraggingOver.index];
-        return calculateDropPosition(currentlyDraggingOver, layout, direction);
+        return calculateDropPosition(
+            layout,
+            currentlyDraggingOver.placement,
+            direction
+        );
     };
 
     const endDrag = async (event: MouseEvent) => {
